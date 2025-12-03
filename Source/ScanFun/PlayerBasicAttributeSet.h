@@ -21,8 +21,6 @@ class SCANFUN_API UPlayerBasicAttributeSet : public UAttributeSet
 	GENERATED_BODY()
 
 	public:
-		
-		UPlayerBasicAttributeSet();
 
 		UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 		FGameplayAttributeData Score;

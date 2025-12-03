@@ -3,7 +3,3 @@
 
 #include "PlayerBasicAttributeSet.h"
 
-
-UPlayerBasicAttributeSet::UPlayerBasicAttributeSet(){
-	InitScore(100.0f);
-}

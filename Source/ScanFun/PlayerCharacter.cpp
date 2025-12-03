@@ -2,6 +2,8 @@
 
 
 #include "PlayerCharacter.h"
+#include "GameplayAbilitiesModule.h"
+#include "AbilitySystemGlobals.h"
 
 
 // Sets default values
@@ -14,11 +16,17 @@ APlayerCharacter::APlayerCharacter()
 
 }
 
+void APlayerCharacter::PostInitializeComponents() {
+	Super::PostInitializeComponents();
+	ASC->InitAbilityActorInfo(this, this);
+	IGameplayAbilitiesModule::Get().GetAbilitySystemGlobals()->GetAttributeSetInitter()->InitAttributeSetDefaults(ASC, "PlayerCharacter", 1, true);
+}
+
 // Called when the game starts or when spawned
 void APlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-	ASC->InitAbilityActorInfo(this, this);
+	
 	
 }
 
