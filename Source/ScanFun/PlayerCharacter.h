@@ -8,10 +8,8 @@
 // GAS
 #include "AbilitySystemInterface.h"
 #include "CustomAbilitySystemComponent.h"
+#include "PlayerBasicAttributeSet.h"
 #include "PlayerCharacter.generated.h"
-
-
-
 
 UCLASS()
 class SCANFUN_API APlayerCharacter : public ACharacter, public IAbilitySystemInterface
@@ -33,10 +31,13 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
-	// 
+	// GAS
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Abilities")
 	TObjectPtr<UCustomAbilitySystemComponent> ASC;
 
 	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
+
+	UPROPERTY(VisibleAnywhere)
+	TObjectPtr<UPlayerBasicAttributeSet> BasicDataAttributeSet;
 
 };
