@@ -42,4 +42,14 @@ public:
 	UPROPERTY(VisibleAnywhere)
 	TObjectPtr<UPlayerBasicAttributeSet> BasicDataAttributeSet;
 
+	// Gameplay Effects
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "GAS | GameplayEffects ")
+	TSubclassOf<UGameplayEffect> UGE_Score_Class;
+
+	UFUNCTION()
+	void ApplyGameplayEffect_Score(float value);
+
+	// Temporary for debug
+	float i = 0;
+
 };

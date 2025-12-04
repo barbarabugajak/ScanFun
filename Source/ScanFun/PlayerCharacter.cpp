@@ -4,6 +4,7 @@
 #include "PlayerCharacter.h"
 #include "GameplayAbilitiesModule.h"
 #include "AbilitySystemGlobals.h"
+#include "GE_Score.h"
 
 
 // Sets default values
@@ -35,6 +36,35 @@ void APlayerCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	i += DeltaTime;
+
+	if (i >= 10.f) {
+		// Sanity check for Gameplay Effects, Tags & Attributes
+		ApplyGameplayEffect_Score(FMath::RandRange(1, 100));
+		i = 0;
+	}
+
+}
+
+void APlayerCharacter::ApplyGameplayEffect_Score(float value) {
+
+	FGameplayEffectContextHandle Context = ASC->MakeEffectContext();
+	if (Context.IsValid() && UGE_Score_Class) {
+		FGameplayEffectSpecHandle Spec = ASC->MakeOutgoingSpec(UGE_Score_Class, 1, Context);
+		if (Spec.IsValid()) {
+			Spec.Data->SetSetByCallerMagnitude(FGameplayTag::RequestGameplayTag("Player.Effect.Score"), value);
+
+			ASC->ApplyGameplayEffectSpecToSelf(*Spec.Data.Get());
+			UE_LOG(LogTemp, Log, TEXT("Score++"));
+			i = 0.f;
+		}
+		else {
+			UE_LOG(LogTemp, Warning, TEXT("Spec is invalid"));
+		}
+	}
+	else {
+		UE_LOG(LogTemp, Warning, TEXT("Context is invalid"));
+	}
 }
 
 // Called to bind functionality to input
