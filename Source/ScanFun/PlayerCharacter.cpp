@@ -5,6 +5,10 @@
 #include "GameplayAbilitiesModule.h"
 #include "AbilitySystemGlobals.h"
 #include "GE_Score.h"
+#include "EnhancedInputComponent.h"
+#include "InputMappingContext.h"
+#include "EnhancedInputSubsystems.h"
+
 
 
 // Sets default values
@@ -56,8 +60,8 @@ void APlayerCharacter::Tick(float DeltaTime)
 void APlayerCharacter::ApplyGameplayEffect_Score(float value) {
 
 	FGameplayEffectContextHandle Context = ASC->MakeEffectContext();
-	if (Context.IsValid() && UGE_Score_Class) {
-		FGameplayEffectSpecHandle Spec = ASC->MakeOutgoingSpec(UGE_Score_Class, 1, Context);
+	if (Context.IsValid() && AddScoreEffect_Class) {
+		FGameplayEffectSpecHandle Spec = ASC->MakeOutgoingSpec(AddScoreEffect_Class, 1, Context);
 		if (Spec.IsValid()) {
 
 			if (!ScoreSetByCallerTag.IsValid()) UE_LOG(LogTemp, Warning, TEXT("Tag for Score is Invalid"));
@@ -86,6 +90,38 @@ void APlayerCharacter::OnActiveGameplayEffectAddedCallback(UAbilitySystemCompone
 void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
+
+	if (!IMC) { UE_LOG(LogTemp, Warning, TEXT("Input Mapping Component not bound")); return; }
+
+	if (APlayerController* PC = Cast<APlayerController>(Controller))
+	{
+		if (ULocalPlayer* LP = PC->GetLocalPlayer())
+		{
+			if (UEnhancedInputLocalPlayerSubsystem* SubSys = LP->GetSubsystem<UEnhancedInputLocalPlayerSubsystem>())
+			{
+				UE_LOG(LogTemp, Display, TEXT("Enhanced Input Setup"));
+				SubSys->AddMappingContext(IMC.LoadSynchronous(), 0);
+			}
+		}
+	}
+
+	UEnhancedInputComponent* Input = Cast<UEnhancedInputComponent>(PlayerInputComponent);
+
+	if (!Input) { UE_LOG(LogTemp, Warning, TEXT("PlayerInputComponent cast to Enhanced Input Component failed")); return; }
+
+	Input->BindAction(IA_Move, ETriggerEvent::Triggered, this, &APlayerCharacter::Move);
+
+
+}
+
+void APlayerCharacter::Move(const FInputActionValue& Value) {
+
+	float InputValue = Value.Get<float>();
+
+	if (GEngine)
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 0.5f, FColor::Yellow, FString::Printf(TEXT("Movement: %f"), InputValue));
+	}
 
 }
 

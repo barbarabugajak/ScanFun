@@ -9,7 +9,10 @@
 #include "AbilitySystemInterface.h"
 #include "CustomAbilitySystemComponent.h"
 #include "PlayerBasicAttributeSet.h"
+// EI
+#include "EnhancedInputSubsystems.h"
 #include "PlayerCharacter.generated.h"
+
 
 UCLASS()
 class SCANFUN_API APlayerCharacter : public ACharacter, public IAbilitySystemInterface
@@ -30,8 +33,18 @@ public:
 	virtual void Tick(float DeltaTime) override;
 	virtual void PostInitializeComponents() override;
 
-	// Called to bind functionality to input
+	// Enhanced Input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+
+	UPROPERTY(EditAnywhere, Category = "Input | Mappings")
+	TSoftObjectPtr<UInputMappingContext> IMC;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input | Movement")
+	UInputAction* IA_Move;
+
+	// Movement
+	UFUNCTION(BlueprintCallable)
+	void Move(const FInputActionValue& Value);
 
 	// GAS
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Abilities")
@@ -43,11 +56,13 @@ public:
 	TObjectPtr<UPlayerBasicAttributeSet> BasicDataAttributeSet;
 
 	// Gameplay Effects
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "GAS | GameplayTags")
+
+	// === SCORE === 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "GAS | Score | GameplayTags")
 	FGameplayTag ScoreSetByCallerTag;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "GAS | GameplayEffects ")
-	TSubclassOf<UGameplayEffect> UGE_Score_Class;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "GAS | Score | GameplayEffects ")
+	TSubclassOf<UGameplayEffect> AddScoreEffect_Class;
 
 	UFUNCTION()
 	void ApplyGameplayEffect_Score(float value);
