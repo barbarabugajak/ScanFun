@@ -18,16 +18,23 @@ APlayerCharacter::APlayerCharacter()
 }
 
 void APlayerCharacter::PostInitializeComponents() {
+
 	Super::PostInitializeComponents();
 	ASC->InitAbilityActorInfo(this, this);
-	IGameplayAbilitiesModule::Get().GetAbilitySystemGlobals()->GetAttributeSetInitter()->InitAttributeSetDefaults(ASC, "PlayerCharacter", 1, true);
+	IGameplayAbilitiesModule::Get().GetAbilitySystemGlobals()->GetAttributeSetInitter()->InitAttributeSetDefaults(ASC, "PlayerCharacter", /*Level=*/1, /*IsInitialLoad=*/true);
 }
 
 // Called when the game starts or when spawned
 void APlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-	
+	if (ASC) {
+		ASC->OnActiveGameplayEffectAddedDelegateToSelf.AddUObject(this, &APlayerCharacter::OnActiveGameplayEffectAddedCallback);
+		UE_LOG(LogTemp, Warning, TEXT("Bound OnActiveGameplayEffectAddedDelegateToSelf on %s"), *GetName());
+	}
+	else {
+		UE_LOG(LogTemp, Error, TEXT("ASC is null in BeginPlay for %s"), *GetName());
+	}
 	
 }
 
@@ -52,10 +59,11 @@ void APlayerCharacter::ApplyGameplayEffect_Score(float value) {
 	if (Context.IsValid() && UGE_Score_Class) {
 		FGameplayEffectSpecHandle Spec = ASC->MakeOutgoingSpec(UGE_Score_Class, 1, Context);
 		if (Spec.IsValid()) {
-			Spec.Data->SetSetByCallerMagnitude(FGameplayTag::RequestGameplayTag("Player.Effect.Score"), value);
 
+			if (!ScoreSetByCallerTag.IsValid()) UE_LOG(LogTemp, Warning, TEXT("Tag for Score is Invalid"));
+
+			Spec.Data->SetSetByCallerMagnitude(ScoreSetByCallerTag, value);
 			ASC->ApplyGameplayEffectSpecToSelf(*Spec.Data.Get());
-			UE_LOG(LogTemp, Log, TEXT("Score++"));
 			i = 0.f;
 		}
 		else {
@@ -65,6 +73,13 @@ void APlayerCharacter::ApplyGameplayEffect_Score(float value) {
 	else {
 		UE_LOG(LogTemp, Warning, TEXT("Context is invalid"));
 	}
+}
+
+// Only works for Duration or Infinite effects, NOT instant
+void APlayerCharacter::OnActiveGameplayEffectAddedCallback(UAbilitySystemComponent* Target, const FGameplayEffectSpec& SpecApplied, FActiveGameplayEffectHandle ActiveHandle) {
+	
+    UE_LOG(LogTemp, Warning, TEXT("Effect added: %s"), *SpecApplied.Def->GetName());
+
 }
 
 // Called to bind functionality to input

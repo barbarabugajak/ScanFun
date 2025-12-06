@@ -3,14 +3,14 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GameplayEffect.h"
+#include "GameplayEffectBase.h"
 #include "GE_Score.generated.h"
 
 /**
  * 
  */
 UCLASS(BlueprintType, Blueprintable)
-class SCANFUN_API UGE_Score : public UGameplayEffect
+class SCANFUN_API UGE_Score : public UGameplayEffectBase
 {
     GENERATED_BODY()
 
@@ -25,3 +25,5 @@ protected:
 
 
 };
+
+// GAS Sanity Check Effect

@@ -10,13 +10,13 @@
 
 
 #include "CoreMinimal.h"
-#include "AttributeSet.h"
+#include "BaseAttributeSet.h"
 #include "CustomAbilitySystemComponent.h"
 #include "PlayerBasicAttributeSet.generated.h"
 
 
 UCLASS()
-class SCANFUN_API UPlayerBasicAttributeSet : public UAttributeSet
+class SCANFUN_API UPlayerBasicAttributeSet : public UBaseAttributeSet
 {
 	GENERATED_BODY()
 
@@ -26,6 +26,7 @@ class SCANFUN_API UPlayerBasicAttributeSet : public UAttributeSet
 		FGameplayAttributeData Score;
 
 		ATTRIBUTE_ACCESSORS(UPlayerBasicAttributeSet, Score);
-	
+		
+		virtual void PostAttributeChange(const FGameplayAttribute& Attribute, float OldValue, float NewValue) override;
 	
 };

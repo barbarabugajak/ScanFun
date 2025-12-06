@@ -39,10 +39,13 @@ public:
 
 	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
 
-	UPROPERTY(VisibleAnywhere)
+	UPROPERTY()
 	TObjectPtr<UPlayerBasicAttributeSet> BasicDataAttributeSet;
 
 	// Gameplay Effects
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "GAS | GameplayTags")
+	FGameplayTag ScoreSetByCallerTag;
+
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "GAS | GameplayEffects ")
 	TSubclassOf<UGameplayEffect> UGE_Score_Class;
 
@@ -52,4 +55,6 @@ public:
 	// Temporary for debug
 	float i = 0;
 
+	UFUNCTION()
+	virtual void OnActiveGameplayEffectAddedCallback(UAbilitySystemComponent* Target, const FGameplayEffectSpec& SpecApplied, FActiveGameplayEffectHandle ActiveHandle);
 };
