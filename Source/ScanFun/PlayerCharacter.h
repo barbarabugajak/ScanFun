@@ -36,16 +36,6 @@ public:
 	// Enhanced Input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
-	UPROPERTY(EditAnywhere, Category = "Input | Mappings")
-	TSoftObjectPtr<UInputMappingContext> IMC;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input | Movement")
-	UInputAction* IA_Move;
-
-	// Movement
-	UFUNCTION(BlueprintCallable)
-	void Move(const FInputActionValue& Value);
-
 	// GAS
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Abilities")
 	TObjectPtr<UCustomAbilitySystemComponent> ASC;
