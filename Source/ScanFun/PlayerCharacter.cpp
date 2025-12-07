@@ -99,4 +99,6 @@ UAbilitySystemComponent* APlayerCharacter::GetAbilitySystemComponent() const
 	return ASC;
 }
 
-bool APlayerCharacter::
+bool APlayerCharacter::IsInViewport() {
+
+}

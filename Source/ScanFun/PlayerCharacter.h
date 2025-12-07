@@ -62,4 +62,8 @@ public:
 
 	UFUNCTION()
 	virtual void OnActiveGameplayEffectAddedCallback(UAbilitySystemComponent* Target, const FGameplayEffectSpec& SpecApplied, FActiveGameplayEffectHandle ActiveHandle);
+
+	UFUNCTION(BlueprintCallable)
+	bool IsInViewport();
+
 };
