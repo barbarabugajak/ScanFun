@@ -8,6 +8,7 @@
 #include "EnhancedInputComponent.h"
 #include "InputMappingContext.h"
 #include "EnhancedInputSubsystems.h"
+#include "Kismet/GameplayStatics.h"
 
 
 
@@ -101,4 +102,22 @@ UAbilitySystemComponent* APlayerCharacter::GetAbilitySystemComponent() const
 
 bool APlayerCharacter::IsInViewport() {
 
+	APlayerController* PC = UGameplayStatics::GetPlayerController(GetWorld(), 0);
+	if (!PC) return false;
+
+	FVector2D ScreenLocation;
+	PC->ProjectWorldLocationToScreen(GetActorLocation(), ScreenLocation);
+
+	int32 viewportX;
+	int32 viewportY;
+	PC->GetViewportSize(viewportX, viewportY);
+
+	if (ScreenLocation.X < 0 || ScreenLocation.X > viewportX) return false;
+	if (ScreenLocation.Y < 0 || ScreenLocation.Y > viewportY) return false;
+
+	/*if (GEngine) {
+		GEngine->AddOnScreenDebugMessage(-3, 0.1f, FColor::Yellow, TEXT("Visible"));
+	}*/
+
+	return true;
 }
