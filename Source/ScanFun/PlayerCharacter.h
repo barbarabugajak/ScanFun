@@ -49,27 +49,13 @@ public:
 	TObjectPtr<UPlayerBasicAttributeSet> BasicDataAttributeSet;
 
 	// Gameplay Effects
-
-	// === SCORE === 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "GAS | Score | GameplayTags")
-	FGameplayTag ScoreSetByCallerTag;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "GAS | Score | GameplayEffects ")
-	TSubclassOf<UGameplayEffect> AddScoreEffect_Class;
-
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "GAS | Score | GameplayAbilities ")
 	TSubclassOf<UGameplayAbilityBase> GainScore;
-
-	UFUNCTION()
-	void ApplyGameplayEffect_Score(float value);
 
 	// Temporary for debug
 	float i = 0;
 
 	UFUNCTION()
 	virtual void OnActiveGameplayEffectAddedCallback(UAbilitySystemComponent* Target, const FGameplayEffectSpec& SpecApplied, FActiveGameplayEffectHandle ActiveHandle);
-
-	UFUNCTION(BlueprintCallable)
-	bool IsInViewport();
 
 };

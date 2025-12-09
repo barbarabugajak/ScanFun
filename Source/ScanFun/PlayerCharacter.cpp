@@ -66,28 +66,6 @@ void APlayerCharacter::Tick(float DeltaTime)
 
 }
 
-void APlayerCharacter::ApplyGameplayEffect_Score(float value) {
-
-	FGameplayEffectContextHandle Context = ASC->MakeEffectContext();
-	if (Context.IsValid() && AddScoreEffect_Class) {
-		FGameplayEffectSpecHandle Spec = ASC->MakeOutgoingSpec(AddScoreEffect_Class, 1, Context);
-		if (Spec.IsValid()) {
-
-			if (!ScoreSetByCallerTag.IsValid()) UE_LOG(LogTemp, Warning, TEXT("Tag for Score is Invalid"));
-
-			Spec.Data->SetSetByCallerMagnitude(ScoreSetByCallerTag, value);
-			ASC->ApplyGameplayEffectSpecToSelf(*Spec.Data.Get());
-			i = 0.f;
-		}
-		else {
-			UE_LOG(LogTemp, Warning, TEXT("Spec is invalid"));
-		}
-	}
-	else {
-		UE_LOG(LogTemp, Warning, TEXT("Context is invalid"));
-	}
-}
-
 // Only works for Duration or Infinite effects, NOT instant
 void APlayerCharacter::OnActiveGameplayEffectAddedCallback(UAbilitySystemComponent* Target, const FGameplayEffectSpec& SpecApplied, FActiveGameplayEffectHandle ActiveHandle) {
 	
@@ -106,26 +84,4 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 UAbilitySystemComponent* APlayerCharacter::GetAbilitySystemComponent() const
 {
 	return ASC;
-}
-
-bool APlayerCharacter::IsInViewport() {
-
-	APlayerController* PC = UGameplayStatics::GetPlayerController(GetWorld(), 0);
-	if (!PC) return false;
-
-	FVector2D ScreenLocation;
-	PC->ProjectWorldLocationToScreen(GetActorLocation(), ScreenLocation);
-
-	int32 viewportX;
-	int32 viewportY;
-	PC->GetViewportSize(viewportX, viewportY);
-
-	if (ScreenLocation.X < 0 || ScreenLocation.X > viewportX) return false;
-	if (ScreenLocation.Y < 0 || ScreenLocation.Y > viewportY) return false;
-
-	/*if (GEngine) {
-		GEngine->AddOnScreenDebugMessage(-3, 0.1f, FColor::Yellow, TEXT("Visible"));
-	}*/
-
-	return true;
 }
