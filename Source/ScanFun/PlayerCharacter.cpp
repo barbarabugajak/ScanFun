@@ -41,6 +41,14 @@ void APlayerCharacter::BeginPlay()
 		UE_LOG(LogTemp, Error, TEXT("ASC is null in BeginPlay for %s"), *GetName());
 	}
 	
+	// Grant Gameplay Abilities
+	if (GetLocalRole() != ROLE_Authority || !ASC)
+	{
+		return;
+	}
+
+	ASC->GiveAbility(FGameplayAbilitySpec(GainScore, 1, 0, this));
+	
 }
 
 // Called every frame
@@ -50,9 +58,9 @@ void APlayerCharacter::Tick(float DeltaTime)
 
 	i += DeltaTime;
 
+	// Sanity check for Gameplay Effects, Tags & Attributes
 	if (i >= 10.f) {
-		// Sanity check for Gameplay Effects, Tags & Attributes
-		ApplyGameplayEffect_Score(FMath::RandRange(1, 100));
+		ASC->TryActivateAbilityByClass(GainScore);
 		i = 0;
 	}
 

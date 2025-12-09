@@ -9,6 +9,9 @@
 #include "AbilitySystemInterface.h"
 #include "CustomAbilitySystemComponent.h"
 #include "PlayerBasicAttributeSet.h"
+
+#include "GameplayAbilityBase.h"
+
 // EI
 #include "EnhancedInputSubsystems.h"
 #include "PlayerCharacter.generated.h"
@@ -53,6 +56,9 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "GAS | Score | GameplayEffects ")
 	TSubclassOf<UGameplayEffect> AddScoreEffect_Class;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "GAS | Score | GameplayAbilities ")
+	TSubclassOf<UGameplayAbilityBase> GainScore;
 
 	UFUNCTION()
 	void ApplyGameplayEffect_Score(float value);
