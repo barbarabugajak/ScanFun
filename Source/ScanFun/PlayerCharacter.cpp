@@ -19,7 +19,8 @@ APlayerCharacter::APlayerCharacter()
 	PrimaryActorTick.bCanEverTick = true;
 	ASC = CreateDefaultSubobject<UCustomAbilitySystemComponent>(TEXT("AbilitySystemComponent"));
 	BasicDataAttributeSet = CreateDefaultSubobject<UPlayerBasicAttributeSet>(TEXT("Basic Data Attribute Set"));
-
+	ScannerConeComp = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Scanner Cone Component"));
+	ScannerConeComp->SetupAttachment(RootComponent);
 }
 
 void APlayerCharacter::PostInitializeComponents() {
@@ -48,6 +49,8 @@ void APlayerCharacter::BeginPlay()
 	}
 
 	ASC->GiveAbility(FGameplayAbilitySpec(GainScore, 1, 0, this));
+	ASC->GiveAbility(FGameplayAbilitySpec(Scan, 1, 0, this));
+
 	
 }
 
@@ -55,14 +58,6 @@ void APlayerCharacter::BeginPlay()
 void APlayerCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
-	i += DeltaTime;
-
-	// Sanity check for Gameplay Effects, Tags & Attributes
-	if (i >= 10.f) {
-		ASC->TryActivateAbilityByClass(GainScore);
-		i = 0;
-	}
 
 }
 

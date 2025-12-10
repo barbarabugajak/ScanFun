@@ -36,6 +36,10 @@ public:
 	virtual void Tick(float DeltaTime) override;
 	virtual void PostInitializeComponents() override;
 
+	// Scanning
+	UPROPERTY(VisibleAnywhere)
+	class UStaticMeshComponent* ScannerConeComp;
+
 	// Enhanced Input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
@@ -48,12 +52,17 @@ public:
 	UPROPERTY()
 	TObjectPtr<UPlayerBasicAttributeSet> BasicDataAttributeSet;
 
-	// Gameplay Effects
+	// Gameplay Abilities
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "GAS | Score | GameplayAbilities ")
 	TSubclassOf<UGameplayAbilityBase> GainScore;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "GAS | Score | GameplayAbilities ")
+	TSubclassOf<UGameplayAbilityBase> Scan;
+
 	// Temporary for debug
 	float i = 0;
+	UPROPERTY(BlueprintReadWrite, Category = "GAS | Score | GameplayAbilities ")
+	bool bShouldScan = false;
 
 	UFUNCTION()
 	virtual void OnActiveGameplayEffectAddedCallback(UAbilitySystemComponent* Target, const FGameplayEffectSpec& SpecApplied, FActiveGameplayEffectHandle ActiveHandle);
