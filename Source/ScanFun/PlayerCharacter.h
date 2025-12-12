@@ -59,11 +59,6 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "GAS | Score | GameplayAbilities ")
 	TSubclassOf<UGameplayAbilityBase> Scan;
 
-	// Temporary for debug
-	float i = 0;
-	UPROPERTY(BlueprintReadWrite, Category = "GAS | Score | GameplayAbilities ")
-	bool bShouldScan = false;
-
 	UFUNCTION()
 	virtual void OnActiveGameplayEffectAddedCallback(UAbilitySystemComponent* Target, const FGameplayEffectSpec& SpecApplied, FActiveGameplayEffectHandle ActiveHandle);
 
