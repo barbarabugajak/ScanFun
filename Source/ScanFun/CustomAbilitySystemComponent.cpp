@@ -2,3 +2,5 @@
 
 
 #include "CustomAbilitySystemComponent.h"
+#include "AbilitySystemGlobals.h"
+#include "GameplayCueManager.h"

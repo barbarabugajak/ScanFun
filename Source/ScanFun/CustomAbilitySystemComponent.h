@@ -13,5 +13,4 @@ UCLASS()
 class SCANFUN_API UCustomAbilitySystemComponent : public UAbilitySystemComponent
 {
 	GENERATED_BODY()
-	
 };
