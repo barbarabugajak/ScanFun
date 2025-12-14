@@ -2,6 +2,7 @@
 
 
 #include "Scannable.h"
+#include "QRData.h"
 
 // Sets default values
 AScannable::AScannable()
@@ -18,13 +19,45 @@ AScannable::AScannable()
 void AScannable::BeginPlay()
 {
 	Super::BeginPlay();
-	
+
+	SetupQRCode();
+
 }
 
 // Called every frame
 void AScannable::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
 }
 
+void AScannable::SetupQRCode() {
+
+	if (!QRDataTable) return;
+
+	TArray<FName> RowNames = QRDataTable->GetRowNames();
+
+	int i = FMath::RandRange(0, RowNames.Num()-1);
+
+	FQRData* Item = QRDataTable->FindRow<FQRData>(RowNames[i], "");
+	
+	if (Item->Asset.IsNull()) return;
+
+	FLoadSoftObjectPathAsyncDelegate Delegate;
+	Delegate.BindUObject(this, &AScannable::OnMeshAssetLoaded);
+	Item->Asset.LoadAsync(Delegate);
+
+	QR->SetRelativeLocation(Item->QRPosition);
+}
+
+void AScannable::OnMeshAssetLoaded(const FSoftObjectPath& AssetPath, UObject* LoadedAsset) {
+	
+	if (!LoadedAsset) return;
+
+	if (GEngine)
+		GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Yellow, LoadedAsset->GetName());
+	
+	if (UStaticMesh* LoadedMesh = Cast<UStaticMesh>(LoadedAsset)) {
+		Mesh->SetStaticMesh(LoadedMesh);
+	}
+	
+}

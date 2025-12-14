@@ -50,8 +50,6 @@ void APlayerCharacter::BeginPlay()
 
 	ASC->GiveAbility(FGameplayAbilitySpec(GainScore, 1, 0, this));
 	ASC->GiveAbility(FGameplayAbilitySpec(Scan, 1, 0, this));
-
-	
 }
 
 // Called every frame
