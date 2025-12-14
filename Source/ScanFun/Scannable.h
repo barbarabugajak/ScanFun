@@ -23,7 +23,9 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 	
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(BlueprintReadWrite, VisibleAnywhere, Category = "Mesh")
 	UStaticMeshComponent* Mesh;
 
+	UPROPERTY(BlueprintReadWrite, VisibleAnywhere, Category = "Mesh")
+	UStaticMeshComponent* QR;
 };

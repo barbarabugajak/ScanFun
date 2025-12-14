@@ -42,10 +42,23 @@ void UScan::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGame
 		for (auto& obj : Results) {
 
 			if (!obj.GetActor()) continue;
+			if (obj.GetActor() == Character) continue;
+			if (!obj.GetComponent()) continue;
 
-			if (AScannable* Scannable = Cast<AScannable>(obj.GetActor())) {
+			if (GEngine)
+				GEngine->AddOnScreenDebugMessage(-1, 1.f, FColor::Yellow, obj.GetComponent()->GetReadableName());
+
+			AScannable* Scannable = Cast<AScannable>(obj.GetActor());
+
+			if (!Scannable) continue;
+
+			
+
+			if (obj.GetComponent()->ComponentHasTag("QR")) {
 				Scannable->Destroy();
 				Character->ASC->TryActivateAbilityByClass(Character->GainScore);
+
+				
 			}
 		}
 	}
