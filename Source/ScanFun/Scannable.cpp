@@ -36,28 +36,25 @@ void AScannable::SetupQRCode() {
 
 	TArray<FName> RowNames = QRDataTable->GetRowNames();
 
-	int i = FMath::RandRange(0, RowNames.Num()-1);
-
-	FQRData* Item = QRDataTable->FindRow<FQRData>(RowNames[i], "");
+	FQRData* Item = QRDataTable->FindRow<FQRData>(RowNames[FMath::RandRange(0, RowNames.Num() - 1)], "");
 	
 	if (Item->Asset.IsNull()) return;
 
-	FLoadSoftObjectPathAsyncDelegate Delegate;
-	Delegate.BindUObject(this, &AScannable::OnMeshAssetLoaded);
-	Item->Asset.LoadAsync(Delegate);
+	Item->Asset.LoadAsync(FLoadSoftObjectPathAsyncDelegate::CreateLambda(
+		[this](const FSoftObjectPath& Path, UObject* LoadedAsset) {
+			if (!LoadedAsset) return;
+
+			if (UStaticMesh* LoadedMesh = Cast<UStaticMesh>(LoadedAsset)) {
+				Mesh->SetStaticMesh(LoadedMesh);
+			}
+		}
+	));
 
 	QR->SetRelativeLocation(Item->QRPosition);
-}
+	FRotator NewRot = QR->GetRelativeRotation();
+	NewRot.Pitch += FMath::RandRange(0, 360);
+	QR->SetRelativeRotation(NewRot);
+	double ScaleQR = FMath::FRandRange(MinQRScale, MaxQRScale);
+	QR->SetRelativeScale3D(FVector(ScaleQR, ScaleQR, ScaleQR));
 
-void AScannable::OnMeshAssetLoaded(const FSoftObjectPath& AssetPath, UObject* LoadedAsset) {
-	
-	if (!LoadedAsset) return;
-
-	if (GEngine)
-		GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Yellow, LoadedAsset->GetName());
-	
-	if (UStaticMesh* LoadedMesh = Cast<UStaticMesh>(LoadedAsset)) {
-		Mesh->SetStaticMesh(LoadedMesh);
-	}
-	
 }

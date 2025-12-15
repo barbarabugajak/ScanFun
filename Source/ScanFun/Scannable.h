@@ -29,13 +29,18 @@ public:
 	UPROPERTY(BlueprintReadWrite, VisibleAnywhere, Category = "Mesh")
 	UStaticMeshComponent* QR;
 
+	// QR 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "QR | Params")
+	double MinQRScale;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "QR | Params")
+	double MaxQRScale;
+
+
 	// Data
 	UPROPERTY(EditDefaultsOnly, Category = "DataTable | QR")
 	UDataTable* QRDataTable;
 
 	UFUNCTION()
 	void SetupQRCode();
-
-	UFUNCTION()
-	void OnMeshAssetLoaded(const FSoftObjectPath& AssetPath, UObject* LoadedAsset);
 };
