@@ -26,6 +26,7 @@ APlayerCharacter::APlayerCharacter()
 void APlayerCharacter::PostInitializeComponents() {
 
 	Super::PostInitializeComponents();
+	checkf(ASC != nullptr, TEXT("Ability System Component did not initialize properly"));
 	ASC->InitAbilityActorInfo(this, this);
 	IGameplayAbilitiesModule::Get().GetAbilitySystemGlobals()->GetAttributeSetInitter()->InitAttributeSetDefaults(ASC, "PlayerCharacter", /*Level=*/1, /*IsInitialLoad=*/true);
 }
@@ -34,16 +35,11 @@ void APlayerCharacter::PostInitializeComponents() {
 void APlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-	if (ASC) {
-		ASC->OnActiveGameplayEffectAddedDelegateToSelf.AddUObject(this, &APlayerCharacter::OnActiveGameplayEffectAddedCallback);
-		UE_LOG(LogTemp, Warning, TEXT("Bound OnActiveGameplayEffectAddedDelegateToSelf on %s"), *GetName());
-	}
-	else {
-		UE_LOG(LogTemp, Error, TEXT("ASC is null in BeginPlay for %s"), *GetName());
-	}
-	
+	checkf(ASC != nullptr, TEXT("ASC is null in BeginPlay"));
+	ASC->OnActiveGameplayEffectAddedDelegateToSelf.AddUObject(this, &APlayerCharacter::OnActiveGameplayEffectAddedCallback);
+
 	// Grant Gameplay Abilities
-	if (GetLocalRole() != ROLE_Authority || !ASC)
+	if (GetLocalRole() != ROLE_Authority)
 	{
 		return;
 	}
@@ -62,8 +58,6 @@ void APlayerCharacter::Tick(float DeltaTime)
 // Only works for Duration or Infinite effects, NOT instant
 void APlayerCharacter::OnActiveGameplayEffectAddedCallback(UAbilitySystemComponent* Target, const FGameplayEffectSpec& SpecApplied, FActiveGameplayEffectHandle ActiveHandle) {
 	
-    UE_LOG(LogTemp, Warning, TEXT("Effect added: %s"), *SpecApplied.Def->GetName());
-
 }
 
 // Called to bind functionality to input

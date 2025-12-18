@@ -6,31 +6,33 @@
 
 UGainScore::UGainScore() {
 	InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;
-	if (!RequestedTag.IsValid()) return;
 	AbilityTags.AddTag(RequestedTag);
 }
 
 void UGainScore::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData) {
 
-	if (!HasAuthorityOrPredictionKey(ActorInfo, &ActivationInfo)) { UE_LOG(LogTemp, Warning, TEXT("No authority or prediction")); return; }
-
 	if (!CommitAbility(Handle, ActorInfo, ActivationInfo)) {
+
 		EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
+
 	}
 
+	check(ActorInfo != nullptr);
 	APlayerCharacter* Character = CastChecked<APlayerCharacter>(ActorInfo->AvatarActor.Get());
-	if (!Character) { UE_LOG(LogTemp, Warning, TEXT("Invalid Avatar")); return; }
+
+	check(Character != nullptr);
+	check(Character->GetAbilitySystemComponent() != nullptr);
 	UAbilitySystemComponent* ASC = CastChecked<UAbilitySystemComponent>(Character->GetAbilitySystemComponent());
-	if (!Character) { UE_LOG(LogTemp, Warning, TEXT("Invalid Ability System Comp")); return; }
 
 	FGameplayEffectContextHandle Context = ASC->MakeEffectContext();
-	if (!Context.IsValid()) { if (!Character) UE_LOG(LogTemp, Warning, TEXT("Invalid Context")); return; }
-	if (!Context.IsValid()) { if (!AddScoreEffect_Class) UE_LOG(LogTemp, Warning, TEXT("AddScoreEffect_Class not assigned")); return; }
+	check(Context.IsValid());
 
+	checkf(AddScoreEffect_Class != nullptr, TEXT("AddScoreEffect_Class not assigned"));
 	FGameplayEffectSpecHandle Spec = ASC->MakeOutgoingSpec(AddScoreEffect_Class, 1, Context);
-	if (!Spec.IsValid()) { if (!AddScoreEffect_Class) UE_LOG(LogTemp, Warning, TEXT("Invalid Spec")); return; }
 
-	if (!ScoreSetByCallerTag.IsValid()) { UE_LOG(LogTemp, Warning, TEXT("Tag for Score is Invalid")); return; }
+	check(Spec.IsValid());
+	checkf(ScoreSetByCallerTag.IsValid(), TEXT("Tag for Score is Invalid"));
+
 
 	// Choose a random Number, for sanity check
 	int value = FMath::RandRange(1, 100);
@@ -54,6 +56,7 @@ void UGainScore::CancelAbility(const FGameplayAbilitySpecHandle Handle, const FG
 	if (ScopeLockCount > 0)
 	{
 		WaitingToExecute.Add(FPostLockDelegate::CreateUObject(this, &UGainScore::CancelAbility, Handle, ActorInfo, ActivationInfo, bReplicateCancelAbility));
+		
 		return;
 	}
 

@@ -12,6 +12,4 @@ UGE_Score::UGE_Score()
 void UGE_Score::PostInitProperties()
 {
     Super::PostInitProperties();
-
-    if (!ScoreSetByCallerTag.IsValid()) return;
 }

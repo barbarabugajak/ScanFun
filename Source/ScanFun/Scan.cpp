@@ -6,27 +6,31 @@
 #include "Scannable.h"
 #include "Engine/OverlapResult.h"
 
+
 UScan::UScan() {
 	InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;
-	if (!RequestedTag.IsValid()) return;
 	AbilityTags.AddTag(RequestedTag);
 }
 
 void UScan::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData) {
 
-	if (!HasAuthorityOrPredictionKey(ActorInfo, &ActivationInfo)) { UE_LOG(LogTemp, Warning, TEXT("No authority or prediction")); return; }
-
 	if (!CommitAbility(Handle, ActorInfo, ActivationInfo)) {
+
 		EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
+
 	}
 
+	check(ActorInfo != nullptr);
 	APlayerCharacter* Character = CastChecked<APlayerCharacter>(ActorInfo->AvatarActor.Get());
-	if (!Character) { UE_LOG(LogTemp, Warning, TEXT("Invalid Avatar")); return; }
+
+	check(Character != nullptr);
+	check(Character->GetAbilitySystemComponent() != nullptr);
 	UAbilitySystemComponent* ASC = CastChecked<UAbilitySystemComponent>(Character->GetAbilitySystemComponent());
-	if (!Character) { UE_LOG(LogTemp, Warning, TEXT("Invalid Ability System Comp")); return; }
 
 	FGameplayEffectContextHandle Context = ASC->MakeEffectContext();
-	if (!Context.IsValid()) { if (!Character) UE_LOG(LogTemp, Warning, TEXT("Invalid Context")); return; }
+	check(Context.IsValid());
+
+	check(Character->GainScore != nullptr);
 
 	// Ability itself
 	TArray<FOverlapResult> Results;
@@ -41,21 +45,21 @@ void UScan::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGame
 
 		for (auto& obj : Results) {
 
-			if (!obj.GetActor()) continue;
-			if (obj.GetActor() == Character) continue;
-			if (!obj.GetComponent()) continue;
+			if (!obj.GetActor()) 
+				continue;
+			if (obj.GetActor() == Character) 
+				continue;
+			if (!obj.GetComponent()) 
+				continue;
 
 			AScannable* Scannable = Cast<AScannable>(obj.GetActor());
 
-			if (!Scannable) continue;
-
-			
+			if (!Scannable)
+				continue;
 
 			if (obj.GetComponent()->ComponentHasTag("QR")) {
 				Scannable->Destroy();
 				Character->ASC->TryActivateAbilityByClass(Character->GainScore);
-
-				
 			}
 		}
 	}
@@ -78,6 +82,7 @@ void UScan::CancelAbility(const FGameplayAbilitySpecHandle Handle, const FGamepl
 	if (ScopeLockCount > 0)
 	{
 		WaitingToExecute.Add(FPostLockDelegate::CreateUObject(this, &UScan::CancelAbility, Handle, ActorInfo, ActivationInfo, bReplicateCancelAbility));
+		
 		return;
 	}
 

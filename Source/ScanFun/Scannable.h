@@ -36,7 +36,6 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "QR | Params")
 	double MaxQRScale;
 
-
 	// Data
 	UPROPERTY(EditDefaultsOnly, Category = "DataTable | QR")
 	UDataTable* QRDataTable;
