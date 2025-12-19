@@ -20,7 +20,6 @@ void UGainScore::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const 
 	check(ActorInfo != nullptr);
 	APlayerCharacter* Character = CastChecked<APlayerCharacter>(ActorInfo->AvatarActor.Get());
 
-	check(Character != nullptr);
 	check(Character->GetAbilitySystemComponent() != nullptr);
 	UAbilitySystemComponent* ASC = CastChecked<UAbilitySystemComponent>(Character->GetAbilitySystemComponent());
 

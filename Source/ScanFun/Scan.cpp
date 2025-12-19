@@ -25,7 +25,7 @@ void UScan::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGame
 
 	check(Character != nullptr);
 	check(Character->GetAbilitySystemComponent() != nullptr);
-	UAbilitySystemComponent* ASC = CastChecked<UAbilitySystemComponent>(Character->GetAbilitySystemComponent());
+	UAbilitySystemComponent* ASC = Cast<UAbilitySystemComponent>(Character->GetAbilitySystemComponent());
 
 	FGameplayEffectContextHandle Context = ASC->MakeEffectContext();
 	check(Context.IsValid());
@@ -43,23 +43,26 @@ void UScan::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGame
 
 	if (bAnyOverlaps) {
 
-		for (auto& obj : Results) {
+		for (const FOverlapResult& obj : Results) {
+			
+			AActor* Actor = obj.GetActor();
+			UPrimitiveComponent* Component = obj.GetComponent();
 
-			if (!obj.GetActor()) 
+			if (!Actor) 
 				continue;
-			if (obj.GetActor() == Character) 
+			if (Actor == Character) 
 				continue;
-			if (!obj.GetComponent()) 
+			if (!Component) 
 				continue;
 
-			AScannable* Scannable = Cast<AScannable>(obj.GetActor());
+			AScannable* Scannable = Cast<AScannable>(Actor);
 
 			if (!Scannable)
 				continue;
 
-			if (obj.GetComponent()->ComponentHasTag("QR")) {
+			if (Component->ComponentHasTag("QR")) {
 				Scannable->Destroy();
-				Character->ASC->TryActivateAbilityByClass(Character->GainScore);
+				ASC->TryActivateAbilityByClass(Character->GainScore);
 			}
 		}
 	}

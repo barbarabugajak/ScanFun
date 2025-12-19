@@ -32,17 +32,23 @@ void AScannable::Tick(float DeltaTime)
 
 void AScannable::SetupQRCode() {
 
-	if (!QRDataTable) return;
+	if (!QRDataTable)
+		return;
 
 	TArray<FName> RowNames = QRDataTable->GetRowNames();
 
 	FQRData* Item = QRDataTable->FindRow<FQRData>(RowNames[FMath::RandRange(0, RowNames.Num() - 1)], "");
 	
-	if (Item->Asset.IsNull()) return;
+	if (Item->Asset.IsNull()) {
+		return;
+	}
 
 	Item->Asset.LoadAsync(FLoadSoftObjectPathAsyncDelegate::CreateLambda(
 		[this](const FSoftObjectPath& Path, UObject* LoadedAsset) {
-			if (!LoadedAsset) return;
+			if (!LoadedAsset) {
+				return;
+			}
+				
 
 			if (UStaticMesh* LoadedMesh = Cast<UStaticMesh>(LoadedAsset)) {
 				Mesh->SetStaticMesh(LoadedMesh);

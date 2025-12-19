@@ -22,8 +22,4 @@ protected:
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Tags")
     FGameplayTag ScoreSetByCallerTag;
-
-
 };
-
-// GAS Sanity Check Effect

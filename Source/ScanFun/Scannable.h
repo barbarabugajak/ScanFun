@@ -30,10 +30,10 @@ public:
 	UStaticMeshComponent* QR;
 
 	// QR 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "QR | Params")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "QR | Params")
 	double MinQRScale;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "QR | Params")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "QR | Params")
 	double MaxQRScale;
 
 	// Data
