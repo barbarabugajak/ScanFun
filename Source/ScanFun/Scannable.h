@@ -42,4 +42,7 @@ public:
 
 	UFUNCTION()
 	void SetupQRCode();
+
+	UPROPERTY()
+	bool bWasScanned = false;
 };
