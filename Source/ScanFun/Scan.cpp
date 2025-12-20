@@ -30,7 +30,9 @@ void UScan::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGame
 	FGameplayEffectContextHandle Context = ASC->MakeEffectContext();
 	check(Context.IsValid());
 
-	check(Character->GainScore != nullptr);
+	// Get the handles of abilities it is to activate on success
+	TArray<FGameplayAbilitySpec*> MatchingGameplayAbilities;
+	ASC->GetActivatableGameplayAbilitySpecsByAllMatchingTags(TagsOfAbilitiesToActivateOnSuccess, MatchingGameplayAbilities);
 
 	// Ability itself
 	TArray<FOverlapResult> Results;
@@ -62,7 +64,10 @@ void UScan::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGame
 
 			if (Component->ComponentHasTag("QR")) {
 				Scannable->Destroy();
-				ASC->TryActivateAbilityByClass(Character->GainScore);
+				for (int i = 0; i < MatchingGameplayAbilities.Num(); i++) {
+					ASC->TryActivateAbility(MatchingGameplayAbilities[i]->Handle);
+				}
+				
 			}
 		}
 	}

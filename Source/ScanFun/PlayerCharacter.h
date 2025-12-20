@@ -53,11 +53,8 @@ public:
 	TObjectPtr<UPlayerBasicAttributeSet> BasicDataAttributeSet;
 
 	// Gameplay Abilities
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "GAS | Score | GameplayAbilities ")
-	TSubclassOf<UGameplayAbilityBase> GainScore;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "GAS | Score | GameplayAbilities ")
-	TSubclassOf<UGameplayAbilityBase> Scan;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "GAS | GameplayAbilities ")
+	TArray<TSubclassOf<UGameplayAbilityBase>> StartingAbilities;
 
 	UFUNCTION()
 	virtual void OnActiveGameplayEffectAddedCallback(UAbilitySystemComponent* Target, const FGameplayEffectSpec& SpecApplied, FActiveGameplayEffectHandle ActiveHandle);

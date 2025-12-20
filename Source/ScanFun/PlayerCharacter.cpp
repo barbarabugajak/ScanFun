@@ -44,8 +44,10 @@ void APlayerCharacter::BeginPlay()
 		return;
 	}
 
-	ASC->GiveAbility(FGameplayAbilitySpec(GainScore, 1, 0, this));
-	ASC->GiveAbility(FGameplayAbilitySpec(Scan, 1, 0, this));
+	for (TSubclassOf<UGameplayAbilityBase> AbilityClass : StartingAbilities) {
+		ASC->GiveAbility(FGameplayAbilitySpec(AbilityClass, 1, 0, this));
+	}
+
 }
 
 // Called every frame

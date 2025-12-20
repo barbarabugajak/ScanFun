@@ -25,4 +25,6 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Properties | GameplayTags")
 	FGameplayTag RequestedTag;
 	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Properties | GameplayTags")
+	FGameplayTagContainer TagsOfAbilitiesToActivateOnSuccess;
 };
