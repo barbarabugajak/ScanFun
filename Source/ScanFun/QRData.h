@@ -7,7 +7,7 @@
 #include "QRData.generated.h"
 
 
-/** Structure that defines a level up table entry */
+/** Structure that defines a datatable entry */
 USTRUCT(BlueprintType)
 struct FQRData : public FTableRowBase
 {
