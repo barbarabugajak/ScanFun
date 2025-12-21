@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "Engine/DeveloperSettings.h"
 #include "Scannable.h"
+#include "ConveyorBelt.h"
 #include "ScannableSubsystemSettings.generated.h"
 
 /**
@@ -25,10 +26,9 @@ public:
 	TSubclassOf<AScannable> ScannableToSpawn_Class;
 
 	// QR 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "QR Scale")
-	double MinQRScale = 0.1f;
+	UPROPERTY(Config, EditAnywhere, BlueprintReadOnly,  Category = "QR Scale")
+	double MinQRScale = 0.01f;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "QR Scale")
-	double MaxQRScale = 0.1f;
-
+	UPROPERTY(Config, EditAnywhere, BlueprintReadOnly, Category = "QR Scale")
+	double MaxQRScale = 0.01f;
 };

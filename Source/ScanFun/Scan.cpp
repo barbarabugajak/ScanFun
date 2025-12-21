@@ -61,9 +61,11 @@ void UScan::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGame
 
 			if (!Scannable)
 				continue;
+			if (Scannable->bWasScanned)
+				continue;
 
 			if (Component->ComponentHasTag("QR")) {
-				Scannable->Destroy();
+				Scannable->bWasScanned = true;
 				for (int i = 0; i < MatchingGameplayAbilities.Num(); i++) {
 					ASC->TryActivateAbility(MatchingGameplayAbilities[i]->Handle);
 				}

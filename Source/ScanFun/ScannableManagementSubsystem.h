@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "Subsystems/WorldSubsystem.h"
 #include "Scannable.h"
+#include "ConveyorBelt.h"
 #include "ScannableManagementSubsystem.generated.h"
 
 /**
@@ -27,7 +28,7 @@ public:
 	void SpawnScannable();
 
 	UFUNCTION()
-	void UpdateScannables();
+	void UpdateScannables(float DeltaTime);
 
 	UPROPERTY(EditAnywhere)
 	UDataTable* QRDataTable;
@@ -42,6 +43,20 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "QR Scale")
 	double MaxQRScale = 0.2f;
 
+	// Gameplay Adjustable parameters
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gameplay Params")
+	float spawnDelay = 10.0f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gameplay Params")
+	float objectSpeed = 100.0f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Conveyor Belt")
+	AConveyorBelt* Belt;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Conveyor Belt")
+	FVector SpawnLocation;
+
 private:
-	float spawnDelayValue = 15.0f;
+	UPROPERTY()
+	float spawnDelayValueCounter = 0.f;
 };

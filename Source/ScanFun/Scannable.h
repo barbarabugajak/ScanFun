@@ -43,6 +43,6 @@ public:
 	UFUNCTION()
 	void SetupQRCode();
 
-	UPROPERTY()
+	UPROPERTY(EditAnywhere, Category = "Scan")
 	bool bWasScanned = false;
 };
