@@ -30,6 +30,9 @@ public:
 	UFUNCTION()
 	void UpdateScannables(float DeltaTime);
 
+	UFUNCTION(BlueprintCallable)
+	void SetConveyorBeltSetupRelatedVariables(AConveyorBelt* ConveyorBelt);
+
 	UPROPERTY(EditAnywhere)
 	UDataTable* QRDataTable;
 

@@ -54,6 +54,22 @@ void UScannableManagementSubsystem::Tick(float DeltaTime) {
 
 }
 
+void UScannableManagementSubsystem::SetConveyorBeltSetupRelatedVariables(AConveyorBelt* ConveyorBelt) {
+
+	check(ConveyorBelt != nullptr);
+
+	Belt = ConveyorBelt;
+
+	FVector BeltLocation = Belt->GetActorLocation();
+	FVector BeltOrigin, BeltExtent;
+	ConveyorBelt->GetActorBounds(true, BeltOrigin, BeltExtent);
+	
+	SpawnLocation = BeltLocation + BeltExtent;
+	SpawnLocation.X = BeltLocation.X;
+	DestructionLocation = BeltLocation - BeltExtent;
+	DestructionLocation.Z = SpawnLocation.Z;
+}
+
 void UScannableManagementSubsystem::SpawnScannable() {
 
 	if (GEngine)
