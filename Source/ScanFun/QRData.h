@@ -27,4 +27,7 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Position")
 	FSoftObjectPath Asset;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Position")
+	float Asset_Scale = 0.f;
+
 };

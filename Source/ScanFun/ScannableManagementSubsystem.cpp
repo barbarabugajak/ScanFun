@@ -82,7 +82,7 @@ void UScannableManagementSubsystem::SpawnScannable() {
 
 
 	Item->Asset.LoadAsync(FLoadSoftObjectPathAsyncDelegate::CreateLambda(
-		[this, NewScannable](const FSoftObjectPath& Path, UObject* LoadedAsset) {
+		[this, NewScannable, Item](const FSoftObjectPath& Path, UObject* LoadedAsset) {
 			if (!LoadedAsset) {
 				return;
 			}
@@ -90,13 +90,12 @@ void UScannableManagementSubsystem::SpawnScannable() {
 
 			if (UStaticMesh* LoadedMesh = Cast<UStaticMesh>(LoadedAsset)) {
 				NewScannable->Mesh->SetStaticMesh(LoadedMesh);
-
+				NewScannable->Mesh->SetRelativeScale3D(FVector(Item->Asset_Scale, Item->Asset_Scale, Item->Asset_Scale));
 				FVector SpawnPos = SpawnLocation;
 				FVector Origin, Extent;
 				NewScannable->GetActorBounds(true, Origin, Extent);
 				SpawnPos.Z += Extent.Z;
 
-				DrawDebugSphere(GetWorld(), SpawnPos, 10.0f, 100.0f, FColor::Yellow, true);
 				NewScannable->SetActorLocation(SpawnPos);
 			}
 		}
@@ -108,8 +107,6 @@ void UScannableManagementSubsystem::SpawnScannable() {
 	NewScannable->QR->SetRelativeRotation(NewRot);
 	double ScaleQR = FMath::FRandRange(MinQRScale, MaxQRScale);
 	NewScannable->QR->SetRelativeScale3D(FVector(ScaleQR, ScaleQR, ScaleQR));
-
-	
 }
 
 void UScannableManagementSubsystem::UpdateScannables(float DeltaTime) {
@@ -123,10 +120,17 @@ void UScannableManagementSubsystem::UpdateScannables(float DeltaTime) {
 			continue;
 		}
 
-		// Basic movement for testing purposes, not production ready-
-		/*FVector Location = Scannables[i]->GetActorLocation();
-		Location.Y += objectSpeed * DeltaTime;
-		Scannables[i]->SetActorLocation(Location);*/
+		FVector Location = Scannables[i]->GetActorLocation();
+
+		if (Location.Y < DestructionLocation.Y) {
+
+			Scannables[i]->Destroy();
+			Scannables.RemoveAt(i);
+			continue;
+		}
+
+		Location.Y -= objectSpeed * DeltaTime;
+		Scannables[i]->SetActorLocation(Location);
 	}
 
 }
