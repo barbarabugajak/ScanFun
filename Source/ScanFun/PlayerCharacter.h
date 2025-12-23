@@ -49,7 +49,7 @@ public:
 
 	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
 
-	UPROPERTY()
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Abilities")
 	TObjectPtr<UPlayerBasicAttributeSet> BasicDataAttributeSet;
 
 	// Gameplay Abilities
@@ -58,4 +58,9 @@ public:
 
 	UFUNCTION()
 	virtual void OnActiveGameplayEffectAddedCallback(UAbilitySystemComponent* Target, const FGameplayEffectSpec& SpecApplied, FActiveGameplayEffectHandle ActiveHandle);
+
+	// AttributeSet Value Chaned Event for desinger in Blueprints
+	UFUNCTION(BlueprintImplementableEvent)
+	void AttributeSet_ScoreChaned(float OldValue, float NewValue);
+
 };

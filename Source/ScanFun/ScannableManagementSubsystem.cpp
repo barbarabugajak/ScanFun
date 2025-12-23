@@ -72,9 +72,6 @@ void UScannableManagementSubsystem::SetConveyorBeltSetupRelatedVariables(AConvey
 
 void UScannableManagementSubsystem::SpawnScannable() {
 
-	if (GEngine)
-		GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Blue, TEXT("Spawned a Scannable"));
-
 	AScannable* NewScannable = GetWorld()->SpawnActor<AScannable>(
 		ScannableToSpawn_Class,
 		SpawnLocation,

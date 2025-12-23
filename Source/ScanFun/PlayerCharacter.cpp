@@ -38,6 +38,14 @@ void APlayerCharacter::BeginPlay()
 	checkf(ASC != nullptr, TEXT("ASC is null in BeginPlay"));
 	ASC->OnActiveGameplayEffectAddedDelegateToSelf.AddUObject(this, &APlayerCharacter::OnActiveGameplayEffectAddedCallback);
 
+	ASC->GetGameplayAttributeValueChangeDelegate(BasicDataAttributeSet->GetScoreAttribute()).AddLambda(
+		[this](const FOnAttributeChangeData& Data)
+		{
+			AttributeSet_ScoreChaned(Data.OldValue, Data.NewValue);
+		}
+	);
+
+
 	// Grant Gameplay Abilities
 	if (GetLocalRole() != ROLE_Authority)
 	{

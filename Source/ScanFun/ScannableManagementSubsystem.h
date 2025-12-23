@@ -48,10 +48,10 @@ public:
 
 	// Gameplay Adjustable parameters
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gameplay Params")
-	float spawnDelay = 1.0f;
+	float spawnDelay = 0.75f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gameplay Params")
-	float objectSpeed = 200.0f;
+	float objectSpeed = 300.0f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Conveyor Belt")
 	AConveyorBelt* Belt;
