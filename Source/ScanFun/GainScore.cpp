@@ -34,7 +34,7 @@ void UGainScore::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const 
 
 
 	// Choose a random Number, for sanity check
-	int value = FMath::RandRange(1, 100);
+	int value = FMath::RandRange(MinScoreValue, MaxScoreValue);
 	Spec.Data->SetSetByCallerMagnitude(ScoreSetByCallerTag, value);
 	ASC->ApplyGameplayEffectSpecToSelf(*Spec.Data.Get());
 	

@@ -6,6 +6,7 @@
 #include "Subsystems/WorldSubsystem.h"
 #include "Scannable.h"
 #include "ConveyorBelt.h"
+#include "GameplayEffectBase.h"
 #include "ScannableManagementSubsystem.generated.h"
 
 /**
@@ -61,6 +62,9 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Conveyor Belt")
 	FVector DestructionLocation;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Tags")
+	FGameplayTagContainer TagsOfAbilitiesToActivateOnDestructionOfScannable;
 
 private:
 	UPROPERTY()

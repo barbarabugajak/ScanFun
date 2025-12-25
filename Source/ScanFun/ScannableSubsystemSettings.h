@@ -6,6 +6,7 @@
 #include "Engine/DeveloperSettings.h"
 #include "Scannable.h"
 #include "ConveyorBelt.h"
+#include "GameplayEffectBase.h"
 #include "ScannableSubsystemSettings.generated.h"
 
 /**
@@ -31,4 +32,9 @@ public:
 
 	UPROPERTY(Config, EditAnywhere, BlueprintReadOnly, Category = "QR Scale")
 	double MaxQRScale = 0.01f;
+
+	// Tags
+
+	UPROPERTY(Config, EditAnywhere, BlueprintReadOnly,  Category = "Tags")
+	FGameplayTagContainer TagsOfAbilitiesToActivateOnDestructionOfScannable;
 };

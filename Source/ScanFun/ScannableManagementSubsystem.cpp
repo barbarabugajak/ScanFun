@@ -5,6 +5,9 @@
 #include "QRData.h"
 #include "ScannableSubsystemSettings.h"
 #include "Kismet/GameplayStatics.h"
+#include "AbilitySystemGlobals.h"
+#include "GameFramework/Character.h"
+#include "CustomAbilitySystemComponent.h"
 #include "ConveyorBelt.h"
 
 void UScannableManagementSubsystem::Initialize(FSubsystemCollectionBase& Collection) {
@@ -31,6 +34,8 @@ void UScannableManagementSubsystem::Initialize(FSubsystemCollectionBase& Collect
 	ScannableToSpawn_Class = Settings->ScannableToSpawn_Class;
 	MinQRScale = Settings->MinQRScale;
 	MaxQRScale = Settings->MaxQRScale;
+
+	TagsOfAbilitiesToActivateOnDestructionOfScannable = Settings->TagsOfAbilitiesToActivateOnDestructionOfScannable;
 }
 
 TStatId UScannableManagementSubsystem::GetStatId() const
@@ -127,9 +132,10 @@ void UScannableManagementSubsystem::UpdateScannables(float DeltaTime) {
 	for (int i = Scannables.Num() - 1; i >= 0; i--)
 	{
 		if (Scannables[i] && Scannables[i]->bWasScanned)
-		{
+		{			
 			Scannables[i]->Destroy();
 			Scannables.RemoveAt(i);
+
 			continue;
 		}
 
@@ -139,6 +145,21 @@ void UScannableManagementSubsystem::UpdateScannables(float DeltaTime) {
 
 			Scannables[i]->Destroy();
 			Scannables.RemoveAt(i);
+
+			const AActor* Player = UGameplayStatics::GetPlayerCharacter(GetWorld(), 0);
+			check(Player);
+
+			UAbilitySystemComponent* ASC =
+				UAbilitySystemGlobals::GetAbilitySystemComponentFromActor(Player, true);
+			check(ASC);
+
+
+			// Get the handle of abilitity to activate
+			TArray<FGameplayAbilitySpec*> MatchingGameplayAbilities;
+			ASC->GetActivatableGameplayAbilitySpecsByAllMatchingTags(TagsOfAbilitiesToActivateOnDestructionOfScannable, MatchingGameplayAbilities);
+			for (FGameplayAbilitySpec* Spec : MatchingGameplayAbilities) {
+				ASC->TryActivateAbility(Spec->Handle);
+			}
 			continue;
 		}
 
