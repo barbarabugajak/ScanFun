@@ -3,6 +3,7 @@
 
 #include "ScannableManagementSubsystem.h"
 #include "QRData.h"
+#include "ScannableDataRow.h"
 #include "ScannableSubsystemSettings.h"
 #include "Kismet/GameplayStatics.h"
 #include "AbilitySystemGlobals.h"
@@ -92,7 +93,7 @@ void UScannableManagementSubsystem::SpawnScannable() {
 
 	TArray<FName> RowNames = QRDataTable->GetRowNames();
 
-	FQRData* Item = QRDataTable->FindRow<FQRData>(RowNames[FMath::RandRange(0, RowNames.Num() - 1)], "");
+	FScannableDataRow* Item = QRDataTable->FindRow<FScannableDataRow>(RowNames[FMath::RandRange(0, RowNames.Num() - 1)], "");
 	
 	if (Item->Asset.IsNull()) {
 		return;
@@ -153,13 +154,8 @@ void UScannableManagementSubsystem::UpdateScannables(float DeltaTime) {
 				UAbilitySystemGlobals::GetAbilitySystemComponentFromActor(Player, true);
 			check(ASC);
 
-
 			// Get the handle of abilitity to activate
-			TArray<FGameplayAbilitySpec*> MatchingGameplayAbilities;
-			ASC->GetActivatableGameplayAbilitySpecsByAllMatchingTags(TagsOfAbilitiesToActivateOnDestructionOfScannable, MatchingGameplayAbilities);
-			for (FGameplayAbilitySpec* Spec : MatchingGameplayAbilities) {
-				ASC->TryActivateAbility(Spec->Handle);
-			}
+			ASC->TryActivateAbilitiesByTag(TagsOfAbilitiesToActivateOnDestructionOfScannable);
 			continue;
 		}
 
