@@ -37,6 +37,8 @@ void UScannableManagementSubsystem::Initialize(FSubsystemCollectionBase& Collect
 	MaxQRScale = Settings->MaxQRScale;
 
 	TagsOfAbilitiesToActivateOnDestructionOfScannable = Settings->TagsOfAbilitiesToActivateOnDestructionOfScannable;
+
+	
 }
 
 TStatId UScannableManagementSubsystem::GetStatId() const
@@ -58,6 +60,7 @@ void UScannableManagementSubsystem::Tick(float DeltaTime) {
 
 	UpdateScannables(DeltaTime);
 
+	TArray<FString> Rarities = GetRarities();
 }
 
 void UScannableManagementSubsystem::SetConveyorBeltSetupRelatedVariables(AConveyorBelt* ConveyorBelt) {

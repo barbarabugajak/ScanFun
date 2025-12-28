@@ -7,6 +7,7 @@
 #include "Scannable.h"
 #include "ConveyorBelt.h"
 #include "GameplayEffectBase.h"
+#include "RarityDataAsset.h"
 #include "ScannableSubsystemSettings.generated.h"
 
 /**
@@ -34,7 +35,10 @@ public:
 	double MaxQRScale = 0.01f;
 
 	// Tags
-
 	UPROPERTY(Config, EditAnywhere, BlueprintReadOnly,  Category = "Tags")
 	FGameplayTagContainer TagsOfAbilitiesToActivateOnDestructionOfScannable;
-};
+
+	UPROPERTY(Config, EditAnywhere, BlueprintReadOnly, Category = "Rarity")
+	FSoftObjectPath RarityDataAssetPath;
+
+};	

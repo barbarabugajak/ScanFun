@@ -7,6 +7,8 @@
 #include "Scannable.h"
 #include "ConveyorBelt.h"
 #include "GameplayEffectBase.h"
+#include "ScannableSubsystemSettings.h"
+#include "RarityDataAsset.h"
 #include "ScannableManagementSubsystem.generated.h"
 
 /**
@@ -65,6 +67,33 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Tags")
 	FGameplayTagContainer TagsOfAbilitiesToActivateOnDestructionOfScannable;
+
+	UFUNCTION()
+	static TArray<FString> GetRarities()
+	{
+		TArray<FString> RarityNames;
+
+		const UScannableSubsystemSettings* Settings = GetDefault<UScannableSubsystemSettings>();
+		if (!Settings)
+		{
+			return RarityNames;
+		}
+
+		URarityDataAsset* LoadedDataAsset = Cast<URarityDataAsset>(Settings->RarityDataAssetPath.TryLoad());
+		
+		if (!LoadedDataAsset)
+		{
+			return RarityNames;
+		}
+
+		for (const FRarityDataAssetPart& Item : LoadedDataAsset->Rarities)
+		{
+			RarityNames.Add(Item.Name);
+		}
+
+		return RarityNames;
+	}
+
 
 private:
 	UPROPERTY()
