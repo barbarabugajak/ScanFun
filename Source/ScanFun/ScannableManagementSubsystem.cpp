@@ -1,6 +1,5 @@
 // Attribution: Barbara Bugajak
 
-
 #include "ScannableManagementSubsystem.h"
 #include "QRData.h"
 #include "ScannableDataRow.h"
@@ -38,7 +37,23 @@ void UScannableManagementSubsystem::Initialize(FSubsystemCollectionBase& Collect
 
 	TagsOfAbilitiesToActivateOnDestructionOfScannable = Settings->TagsOfAbilitiesToActivateOnDestructionOfScannable;
 
-	
+	Settings->RarityDataAssetPath.LoadAsync(FLoadSoftObjectPathAsyncDelegate::CreateLambda(
+		[this](const FSoftObjectPath& Path, UObject* LoadedAsset) {
+			if (!LoadedAsset) {
+				return;
+			}
+
+
+			if (URarityDataAsset* LoadedDataAsset = Cast<URarityDataAsset>(LoadedAsset)) {
+				RarityDataAsset = LoadedDataAsset;
+
+				for (FRarityDataAssetPart& Rarity : RarityDataAsset->Rarities) {
+					rarityWeightsSum += Rarity.ProbabilityWeight;
+				}
+			}
+		}
+	));
+
 }
 
 TStatId UScannableManagementSubsystem::GetStatId() const
@@ -81,26 +96,55 @@ void UScannableManagementSubsystem::SetConveyorBeltSetupRelatedVariables(AConvey
 
 void UScannableManagementSubsystem::SpawnScannable() {
 
+	check(QRDataTable != nullptr);
+	check(RarityDataAsset != nullptr);
+
+	float RandomValue = FMath::FRandRange(0.0f, rarityWeightsSum);
+
+	FRarityDataAssetPart ChosenRarity;
+
+	float cumulativeProbability = 0.0f;
+
+	for (const FRarityDataAssetPart& Item : RarityDataAsset->Rarities)
+	{
+		cumulativeProbability += Item.ProbabilityWeight;
+
+		if (RandomValue <= cumulativeProbability)
+		{
+			ChosenRarity = Item;
+			break; 
+		}
+	}
+
+	if (GEngine)
+		GEngine->AddOnScreenDebugMessage(-1, 3.0f, ChosenRarity.Color, FString::Printf(TEXT("Rarity: %s"), *ChosenRarity.Name));
+
+	TArray< FScannableDataRow*> PossibleItems;
+
+	TArray<FName> RowNames = QRDataTable->GetRowNames();
+
+	for (const FName& RowName : RowNames)
+	{
+		if (FScannableDataRow* Row = QRDataTable->FindRow<FScannableDataRow>(RowName, ""))
+		{
+			if (Row->Rarity == ChosenRarity.Name)
+			{
+				PossibleItems.Add(Row);
+			}
+		}
+	}
+
+	FScannableDataRow* Item = PossibleItems[FMath::RandRange(0, PossibleItems.Num()-1)];
+	
+	check(!Item->Asset.IsNull());
+
 	AScannable* NewScannable = GetWorld()->SpawnActor<AScannable>(
 		ScannableToSpawn_Class,
 		SpawnLocation,
 		FRotator::ZeroRotator
 	);
 
-	
-
 	Scannables.Add(NewScannable);
-
-	if (!QRDataTable)
-		return;
-
-	TArray<FName> RowNames = QRDataTable->GetRowNames();
-
-	FScannableDataRow* Item = QRDataTable->FindRow<FScannableDataRow>(RowNames[FMath::RandRange(0, RowNames.Num() - 1)], "");
-	
-	if (Item->Asset.IsNull()) {
-		return;
-	}
 
 
 	Item->Asset.LoadAsync(FLoadSoftObjectPathAsyncDelegate::CreateLambda(

@@ -9,6 +9,7 @@
 #include "GameplayEffectBase.h"
 #include "ScannableSubsystemSettings.h"
 #include "RarityDataAsset.h"
+#include "ScannableDataRow.h"
 #include "ScannableManagementSubsystem.generated.h"
 
 /**
@@ -39,6 +40,9 @@ public:
 	UPROPERTY(EditAnywhere)
 	UDataTable* QRDataTable;
 
+	UPROPERTY()
+	URarityDataAsset* RarityDataAsset;
+
 	UPROPERTY(EditAnywhere)
 	TSubclassOf<AScannable> ScannableToSpawn_Class;
 
@@ -68,6 +72,13 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Tags")
 	FGameplayTagContainer TagsOfAbilitiesToActivateOnDestructionOfScannable;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Rarity Tiers")
+	int rarityWeightsSum = 0;
+private:
+	UPROPERTY()
+	float spawnDelayValueCounter = 0.f;
+
+public: 
 	UFUNCTION()
 	static TArray<FString> GetRarities()
 	{
@@ -80,7 +91,7 @@ public:
 		}
 
 		URarityDataAsset* LoadedDataAsset = Cast<URarityDataAsset>(Settings->RarityDataAssetPath.TryLoad());
-		
+
 		if (!LoadedDataAsset)
 		{
 			return RarityNames;
@@ -93,9 +104,4 @@ public:
 
 		return RarityNames;
 	}
-
-
-private:
-	UPROPERTY()
-	float spawnDelayValueCounter = 0.f;
 };

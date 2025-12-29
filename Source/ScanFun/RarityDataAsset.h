@@ -17,7 +17,7 @@ struct FRarityDataAssetPart {
 	UPROPERTY(EditAnywhere, Category = "Rarity")
 	FString Name;
 	UPROPERTY(EditAnywhere, Category = "Rarity")
-	float Probability = 1.0f;
+	int ProbabilityWeight = 1;
 	UPROPERTY(EditAnywhere, Category = "Cosmetic")
 	FColor Color = FColor::Black;
 
