@@ -70,10 +70,17 @@ public:
 	FVector DestructionLocation;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Tags")
-	FGameplayTagContainer TagsOfAbilitiesToActivateOnDestructionOfScannable;
+	FGameplayTagContainer LoseScoreTagContainer;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Tags")
+	FGameplayTag ScannableDestroyedEventTag;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Rarity Tiers")
 	int rarityWeightsSum = 0;
+
+	UFUNCTION()
+	FRarityDataAssetPart GetRarityTierOfScannable(const AScannable* Scannable);
+
 private:
 	UPROPERTY()
 	float spawnDelayValueCounter = 0.f;

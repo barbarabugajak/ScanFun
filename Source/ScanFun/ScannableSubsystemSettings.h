@@ -36,9 +36,11 @@ public:
 
 	// Tags
 	UPROPERTY(Config, EditAnywhere, BlueprintReadOnly,  Category = "Tags")
-	FGameplayTagContainer TagsOfAbilitiesToActivateOnDestructionOfScannable;
+	FGameplayTagContainer LoseScoreTagContainer;
 
 	UPROPERTY(Config, EditAnywhere, BlueprintReadOnly, Category = "Rarity")
 	FSoftObjectPath RarityDataAssetPath;
 
+	UPROPERTY(Config, EditAnywhere, BlueprintReadOnly, Category = "Tags")
+	FGameplayTag ScannableDestroyedEventTag;
 };	

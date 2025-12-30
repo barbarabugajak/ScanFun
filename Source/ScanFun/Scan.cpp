@@ -32,7 +32,7 @@ void UScan::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGame
 
 	// Get the handles of abilities it is to activate on success
 	TArray<FGameplayAbilitySpec*> MatchingGameplayAbilities;
-	ASC->GetActivatableGameplayAbilitySpecsByAllMatchingTags(TagsOfAbilitiesToActivateOnSuccess, MatchingGameplayAbilities);
+	ASC->GetActivatableGameplayAbilitySpecsByAllMatchingTags(GainScoreTag, MatchingGameplayAbilities);
 
 	// Ability itself
 	TArray<FOverlapResult> Results;
@@ -66,8 +66,17 @@ void UScan::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGame
 
 			if (Component->ComponentHasTag("QR")) {
 				Scannable->bWasScanned = true;
+
+				FGameplayEventData DataSetup;
+				
+				DataSetup.OptionalObject = Scannable;
+
+				const FGameplayEventData* Data = &DataSetup;
+				
+				FGameplayAbilityActorInfo* GainScoreActorInfo = const_cast<FGameplayAbilityActorInfo *>(ActorInfo);
 				for (int i = 0; i < MatchingGameplayAbilities.Num(); i++) {
-					ASC->TryActivateAbility(MatchingGameplayAbilities[i]->Handle);
+					ASC->TriggerAbilityFromGameplayEvent(MatchingGameplayAbilities[i]->Handle, GainScoreActorInfo, GainScoreEventTag, Data, *ASC);
+					//ASC->TryActivateAbility(MatchingGameplayAbilities[i]->Handle);
 				}
 				
 			}

@@ -26,5 +26,8 @@ public:
 	FGameplayTag RequestedTag;
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Properties | GameplayTags")
-	FGameplayTagContainer TagsOfAbilitiesToActivateOnSuccess;
+	FGameplayTagContainer GainScoreTag;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Properties | GameplayTags")
+	FGameplayTag GainScoreEventTag;
 };

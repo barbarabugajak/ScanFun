@@ -14,12 +14,20 @@ struct FRarityDataAssetPart {
 
 	GENERATED_BODY()
 
-	UPROPERTY(EditAnywhere, Category = "Rarity")
+	UPROPERTY(EditAnywhere, Category = "Params")
 	FString Name;
-	UPROPERTY(EditAnywhere, Category = "Rarity")
-	int ProbabilityWeight = 1;
+
 	UPROPERTY(EditAnywhere, Category = "Cosmetic")
 	FColor Color = FColor::Black;
+
+	UPROPERTY(EditAnywhere, Category = "Spawn")
+	int ProbabilityWeight = 1;
+
+	UPROPERTY(EditAnywhere, Category = "Spawn")
+	int Cooldown = 1;
+
+	UPROPERTY(EditAnywhere, Category = "Params")
+	float Price = 0.0f;
 
 };
 
