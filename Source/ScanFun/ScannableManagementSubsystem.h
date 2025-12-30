@@ -75,6 +75,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Tags")
 	FGameplayTag ScannableDestroyedEventTag;
 
+	UPROPERTY(Config, EditAnywhere, BlueprintReadOnly, Category = "Tags")
+	TArray<TSubclassOf<UGameplayAbilityBase>> FailAbilities;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Rarity Tiers")
 	int rarityWeightsSum = 0;
 

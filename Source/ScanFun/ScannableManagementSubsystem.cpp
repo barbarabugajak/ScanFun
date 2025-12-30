@@ -35,8 +35,11 @@ void UScannableManagementSubsystem::Initialize(FSubsystemCollectionBase& Collect
 	MinQRScale = Settings->MinQRScale;
 	MaxQRScale = Settings->MaxQRScale;
 	ScannableDestroyedEventTag = Settings->ScannableDestroyedEventTag;
-
+	spawnDelay = Settings->SpawnDelay;
 	LoseScoreTagContainer = Settings->LoseScoreTagContainer;
+	objectSpeed = Settings->ConveyorBeltSpeed;
+	FailAbilities = Settings->FailAbilities;
+
 
 	Settings->RarityDataAssetPath.LoadAsync(FLoadSoftObjectPathAsyncDelegate::CreateLambda(
 		[this](const FSoftObjectPath& Path, UObject* LoadedAsset) {
@@ -214,6 +217,11 @@ void UScannableManagementSubsystem::UpdateScannables(float DeltaTime) {
 
 			for (int j = 0; j < MatchingGameplayAbilities.Num(); j++) {
 				ASC->TriggerAbilityFromGameplayEvent(MatchingGameplayAbilities[j]->Handle, &GainScoreActorInfo, ScannableDestroyedEventTag, Data, *ASC);
+			}
+			
+			if (FailAbilities.Num() > 0) {
+				int index = FMath::RandHelper(FailAbilities.Num());
+				ASC->TryActivateAbilityByClass(FailAbilities[index]);
 			}
 
 			Scannables[i]->Destroy();

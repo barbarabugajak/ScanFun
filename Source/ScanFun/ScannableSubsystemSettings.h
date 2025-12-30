@@ -8,6 +8,7 @@
 #include "ConveyorBelt.h"
 #include "GameplayEffectBase.h"
 #include "RarityDataAsset.h"
+#include "GameplayAbilityBase.h"
 #include "ScannableSubsystemSettings.generated.h"
 
 /**
@@ -43,4 +44,14 @@ public:
 
 	UPROPERTY(Config, EditAnywhere, BlueprintReadOnly, Category = "Tags")
 	FGameplayTag ScannableDestroyedEventTag;
+
+	UPROPERTY(Config, EditAnywhere, BlueprintReadOnly, Category = "Tags")
+	TArray<TSubclassOf<UGameplayAbilityBase>> FailAbilities;
+
+	UPROPERTY(Config, EditAnywhere, BlueprintReadOnly, Category = "Speed")
+	float SpawnDelay = 0.75f;
+
+	UPROPERTY(Config, EditAnywhere, BlueprintReadOnly, Category = "Speed")
+	float ConveyorBeltSpeed = 300.0f;
+
 };	
