@@ -34,8 +34,9 @@ void UScannableManagementSubsystem::Initialize(FSubsystemCollectionBase& Collect
 	ScannableToSpawn_Class = Settings->ScannableToSpawn_Class;
 	MinQRScale = Settings->MinQRScale;
 	MaxQRScale = Settings->MaxQRScale;
+	ScannableDestroyedEventTag = Settings->ScannableDestroyedEventTag;
 
-	TagsOfAbilitiesToActivateOnDestructionOfScannable = Settings->TagsOfAbilitiesToActivateOnDestructionOfScannable;
+	LoseScoreTagContainer = Settings->LoseScoreTagContainer;
 
 	Settings->RarityDataAssetPath.LoadAsync(FLoadSoftObjectPathAsyncDelegate::CreateLambda(
 		[this](const FSoftObjectPath& Path, UObject* LoadedAsset) {
@@ -115,9 +116,9 @@ void UScannableManagementSubsystem::SpawnScannable() {
 			break; 
 		}
 	}
-
-	if (GEngine)
-		GEngine->AddOnScreenDebugMessage(-1, 3.0f, ChosenRarity.Color, FString::Printf(TEXT("Rarity: %s"), *ChosenRarity.Name));
+	
+	/*if (GEngine)
+		GEngine->AddOnScreenDebugMessage(-1, 3.0f, ChosenRarity.Color, FString::Printf(TEXT("Rarity: %s"), *ChosenRarity.Name));*/
 
 	TArray< FScannableDataRow*> PossibleItems;
 
@@ -143,7 +144,7 @@ void UScannableManagementSubsystem::SpawnScannable() {
 		SpawnLocation,
 		FRotator::ZeroRotator
 	);
-
+	NewScannable->RarityTierName = ChosenRarity.Name;
 	Scannables.Add(NewScannable);
 
 
@@ -191,9 +192,6 @@ void UScannableManagementSubsystem::UpdateScannables(float DeltaTime) {
 
 		if (Location.Y < DestructionLocation.Y) {
 
-			Scannables[i]->Destroy();
-			Scannables.RemoveAt(i);
-
 			const AActor* Player = UGameplayStatics::GetPlayerCharacter(GetWorld(), 0);
 			check(Player);
 
@@ -202,7 +200,24 @@ void UScannableManagementSubsystem::UpdateScannables(float DeltaTime) {
 			check(ASC);
 
 			// Get the handle of abilitity to activate
-			ASC->TryActivateAbilitiesByTag(TagsOfAbilitiesToActivateOnDestructionOfScannable);
+			TArray<FGameplayAbilitySpec*> MatchingGameplayAbilities;
+			ASC->GetActivatableGameplayAbilitySpecsByAllMatchingTags(LoseScoreTagContainer, MatchingGameplayAbilities);
+
+			FGameplayEventData DataSetup;
+
+			DataSetup.OptionalObject = Scannables[i];
+
+			const FGameplayEventData* Data = &DataSetup;
+
+			FGameplayAbilityActorInfo GainScoreActorInfo;
+			GainScoreActorInfo.InitFromActor(const_cast<AActor*>(Player), const_cast<AActor*>(Player), ASC);
+
+			for (int j = 0; j < MatchingGameplayAbilities.Num(); j++) {
+				ASC->TriggerAbilityFromGameplayEvent(MatchingGameplayAbilities[j]->Handle, &GainScoreActorInfo, ScannableDestroyedEventTag, Data, *ASC);
+			}
+
+			Scannables[i]->Destroy();
+			Scannables.RemoveAt(i);
 			continue;
 		}
 
@@ -212,3 +227,21 @@ void UScannableManagementSubsystem::UpdateScannables(float DeltaTime) {
 
 }
 
+FRarityDataAssetPart UScannableManagementSubsystem::GetRarityTierOfScannable(const AScannable* Scannable) {
+	
+	FRarityDataAssetPart Item;
+	
+	if (!Scannable) {
+		return Item;
+	}
+
+	FString ScannableTierName = Scannable->RarityTierName;
+
+	for (FRarityDataAssetPart Tier : RarityDataAsset->Rarities) {
+		if (Tier.Name == ScannableTierName) {
+			return Tier;
+		}
+	}
+
+	return Item;
+}

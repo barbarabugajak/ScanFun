@@ -45,4 +45,7 @@ public:
 
 	UPROPERTY(EditAnywhere, Category = "Scan")
 	bool bWasScanned = false;
+
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Rarity")
+	FString RarityTierName;
 };

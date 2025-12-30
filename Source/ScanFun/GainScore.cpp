@@ -2,6 +2,8 @@
 
 
 #include "GainScore.h"
+#include "Scannable.h"
+#include "ScannableManagementSubsystem.h"
 #include "PlayerCharacter.h"
 
 UGainScore::UGainScore() {
@@ -32,9 +34,21 @@ void UGainScore::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const 
 	check(Spec.IsValid());
 	checkf(ScoreSetByCallerTag.IsValid(), TEXT("Tag for Score is Invalid"));
 
+	int value = 0;
+	if (TriggerEventData->OptionalObject) {
+		const AScannable* Scannable = Cast<const AScannable>(TriggerEventData->OptionalObject);
 
-	// Choose a random Number, for sanity check
-	int value = FMath::RandRange(MinScoreValue, MaxScoreValue);
+		UScannableManagementSubsystem* ScannableManagementSubsystem = GetWorld()->GetSubsystem<UScannableManagementSubsystem>();
+		check(ScannableManagementSubsystem);
+		FRarityDataAssetPart RarityTier = ScannableManagementSubsystem->GetRarityTierOfScannable(Scannable);
+		value = RarityTier.Price * Coefficient;
+	}
+	else {
+		UE_LOG(LogTemp, Error, TEXT("No Event Data Optional Object, Scannable can't be accessed"))
+
+	}
+
+
 	Spec.Data->SetSetByCallerMagnitude(ScoreSetByCallerTag, value);
 	ASC->ApplyGameplayEffectSpecToSelf(*Spec.Data.Get());
 	

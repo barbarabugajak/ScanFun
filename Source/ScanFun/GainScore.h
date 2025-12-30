@@ -29,11 +29,8 @@ class SCANFUN_API UGainScore : public UGameplayAbilityBase
 
 		UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Properties | GameplayTags")
 		FGameplayTag ScoreSetByCallerTag;
-
-		UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Properties | Score")
-		float MinScoreValue = 0.0f;
-
-		UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Properties | Score")
-		float MaxScoreValue = 0.0f;
+		
+		UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Properties")
+		float Coefficient = 1.0f;
 	
 };
