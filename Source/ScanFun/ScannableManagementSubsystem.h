@@ -78,12 +78,14 @@ public:
 	UPROPERTY(Config, EditAnywhere, BlueprintReadOnly, Category = "Tags")
 	TArray<TSubclassOf<UGameplayAbilityBase>> FailAbilities;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Rarity Tiers")
-	int rarityWeightsSum = 0;
+	UFUNCTION()
+	void UpdateCooldowns();
 
 	UFUNCTION()
 	FRarityDataAssetPart GetRarityTierOfScannable(const AScannable* Scannable);
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Rarity Tiers")
+	TMap<FString, int> Cooldowns;
 private:
 	UPROPERTY()
 	float spawnDelayValueCounter = 0.f;

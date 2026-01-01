@@ -20,13 +20,16 @@ void UScannableManagementSubsystem::Initialize(FSubsystemCollectionBase& Collect
 
 	Settings->QRDataTablePath.LoadAsync(FLoadSoftObjectPathAsyncDelegate::CreateLambda(
 		[this](const FSoftObjectPath& Path, UObject* LoadedAsset) {
-			if (!LoadedAsset) {
-				return;
-			}
 
+			if (!LoadedAsset) {
+				UE_LOG(LogTemp, Error, TEXT("Asset did not load from path: "), *Path.ToString());
+			}
 
 			if (UDataTable* LoadedDataTable = Cast<UDataTable>(LoadedAsset)) {
 				QRDataTable = LoadedDataTable;
+			}
+			else {
+				UE_LOG(LogTemp, Error, TEXT("Loaded asset did not match type. Loaded from %s"), *Path.ToString());
 			}
 		}
 	));
@@ -43,17 +46,20 @@ void UScannableManagementSubsystem::Initialize(FSubsystemCollectionBase& Collect
 
 	Settings->RarityDataAssetPath.LoadAsync(FLoadSoftObjectPathAsyncDelegate::CreateLambda(
 		[this](const FSoftObjectPath& Path, UObject* LoadedAsset) {
+
+			UE_LOG(LogTemp, Log, TEXT("In Async Rarity"));
+			
 			if (!LoadedAsset) {
-				return;
+				UE_LOG(LogTemp, Error, TEXT("Asset did not load from path: "), *Path.ToString());
 			}
 
-
 			if (URarityDataAsset* LoadedDataAsset = Cast<URarityDataAsset>(LoadedAsset)) {
+
 				RarityDataAsset = LoadedDataAsset;
 
-				for (FRarityDataAssetPart& Rarity : RarityDataAsset->Rarities) {
-					rarityWeightsSum += Rarity.ProbabilityWeight;
-				}
+			}
+			else {
+				UE_LOG(LogTemp, Error, TEXT("Loaded asset did not match type. Loaded from %s"), *Path.ToString());
 			}
 		}
 	));
@@ -100,8 +106,33 @@ void UScannableManagementSubsystem::SetConveyorBeltSetupRelatedVariables(AConvey
 
 void UScannableManagementSubsystem::SpawnScannable() {
 
-	check(QRDataTable != nullptr);
-	check(RarityDataAsset != nullptr);
+	if (QRDataTable == nullptr) {
+		return;
+	}
+	if (RarityDataAsset == nullptr) {
+		return;
+	}
+
+	UpdateCooldowns();
+
+	TArray<FRarityDataAssetPart> PossibleRarities = RarityDataAsset->Rarities;
+
+	for (int i = PossibleRarities.Num() - 1; i >= 0; i--) {
+		if (Cooldowns.Find(PossibleRarities[i].Name)) {
+			PossibleRarities.RemoveAt(i);
+		}
+	}
+
+
+	if (PossibleRarities.Num() == 0) {
+		return; // No Spawn if no tier possible
+	}
+
+	int rarityWeightsSum = 0;
+
+	for (FRarityDataAssetPart& Rarity : PossibleRarities) {
+		rarityWeightsSum += Rarity.ProbabilityWeight;
+	}
 
 	float RandomValue = FMath::FRandRange(0.0f, rarityWeightsSum);
 
@@ -109,19 +140,20 @@ void UScannableManagementSubsystem::SpawnScannable() {
 
 	float cumulativeProbability = 0.0f;
 
-	for (const FRarityDataAssetPart& Item : RarityDataAsset->Rarities)
-	{
+	for (const FRarityDataAssetPart& Item : PossibleRarities)
+	{	
 		cumulativeProbability += Item.ProbabilityWeight;
 
 		if (RandomValue <= cumulativeProbability)
 		{
 			ChosenRarity = Item;
+			Cooldowns.FindOrAdd(ChosenRarity.Name) = ChosenRarity.Cooldown;
 			break; 
 		}
 	}
 	
-	/*if (GEngine)
-		GEngine->AddOnScreenDebugMessage(-1, 3.0f, ChosenRarity.Color, FString::Printf(TEXT("Rarity: %s"), *ChosenRarity.Name));*/
+	if (GEngine)
+		GEngine->AddOnScreenDebugMessage(-1, 3.0f, ChosenRarity.Color, FString::Printf(TEXT("Rarity: %s"), *ChosenRarity.Name));
 
 	TArray< FScannableDataRow*> PossibleItems;
 
@@ -252,4 +284,16 @@ FRarityDataAssetPart UScannableManagementSubsystem::GetRarityTierOfScannable(con
 	}
 
 	return Item;
+}
+
+void UScannableManagementSubsystem::UpdateCooldowns() {
+
+	for (TMap<FString, int>::TIterator It = Cooldowns.CreateIterator(); It; ++It){
+		if (It->Value <= 0) {
+			It.RemoveCurrent();
+			continue;
+		}
+		It->Value -= 1;
+	}
+
 }
