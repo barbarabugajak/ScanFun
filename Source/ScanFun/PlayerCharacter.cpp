@@ -56,13 +56,6 @@ void APlayerCharacter::BeginPlay()
 	for (TSubclassOf<UGameplayAbilityBase> AbilityClass : StartingAbilities) {
 		ASC->GiveAbility(FGameplayAbilitySpec(AbilityClass, 1, 0, this));
 	}
-
-	UScannableManagementSubsystem * ScannableManagementSubsystem = GetWorld()->GetSubsystem<UScannableManagementSubsystem>();
-
-	for (TSubclassOf<UGameplayAbilityBase> AbilityClass : ScannableManagementSubsystem->FailAbilities) {
-		ASC->GiveAbility(FGameplayAbilitySpec(AbilityClass, 1, 0, this));
-	}
-
 }
 
 // Called every frame

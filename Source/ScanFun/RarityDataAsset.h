@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "ScanAbility.h"
 #include "Engine/DataAsset.h"
 #include "RarityDataAsset.generated.h"
 
@@ -28,6 +29,12 @@ struct FRarityDataAssetPart {
 
 	UPROPERTY(EditAnywhere, Category = "Params")
 	float Price = 0.0f;
+
+	UPROPERTY(EditAnywhere, Category = "Abilities")
+	TArray<TSubclassOf<UScanAbility>> ScanAbilities;
+
+	UPROPERTY(EditAnywhere, Category = "Abilities")
+	TArray<TSubclassOf<UGameplayAbilityBase>> FailAbilities;
 
 };
 

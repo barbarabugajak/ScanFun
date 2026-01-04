@@ -45,9 +45,6 @@ public:
 	UPROPERTY(Config, EditAnywhere, BlueprintReadOnly, Category = "Tags")
 	FGameplayTag ScannableDestroyedEventTag;
 
-	UPROPERTY(Config, EditAnywhere, BlueprintReadOnly, Category = "Tags")
-	TArray<TSubclassOf<UGameplayAbilityBase>> FailAbilities;
-
 	UPROPERTY(Config, EditAnywhere, BlueprintReadOnly, Category = "Speed")
 	float SpawnDelay = 0.75f;
 

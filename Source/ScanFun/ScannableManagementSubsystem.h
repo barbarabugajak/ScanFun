@@ -75,8 +75,11 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Tags")
 	FGameplayTag ScannableDestroyedEventTag;
 
-	UPROPERTY(Config, EditAnywhere, BlueprintReadOnly, Category = "Tags")
-	TArray<TSubclassOf<UGameplayAbilityBase>> FailAbilities;
+	UFUNCTION()
+	void HaveScanAbilitiesGranted();
+
+	UPROPERTY(VisibleAnywhere)
+	bool bAScanAbilitiesGranted = false;
 
 	UFUNCTION()
 	void UpdateCooldowns();

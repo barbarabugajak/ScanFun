@@ -8,6 +8,7 @@
 #include "AbilitySystemGlobals.h"
 #include "GameFramework/Character.h"
 #include "CustomAbilitySystemComponent.h"
+#include "ScanAbility.h"
 #include "ConveyorBelt.h"
 
 void UScannableManagementSubsystem::Initialize(FSubsystemCollectionBase& Collection) {
@@ -41,7 +42,6 @@ void UScannableManagementSubsystem::Initialize(FSubsystemCollectionBase& Collect
 	spawnDelay = Settings->SpawnDelay;
 	LoseScoreTagContainer = Settings->LoseScoreTagContainer;
 	objectSpeed = Settings->ConveyorBeltSpeed;
-	FailAbilities = Settings->FailAbilities;
 
 
 	Settings->RarityDataAssetPath.LoadAsync(FLoadSoftObjectPathAsyncDelegate::CreateLambda(
@@ -56,7 +56,6 @@ void UScannableManagementSubsystem::Initialize(FSubsystemCollectionBase& Collect
 			if (URarityDataAsset* LoadedDataAsset = Cast<URarityDataAsset>(LoadedAsset)) {
 
 				RarityDataAsset = LoadedDataAsset;
-
 			}
 			else {
 				UE_LOG(LogTemp, Error, TEXT("Loaded asset did not match type. Loaded from %s"), *Path.ToString());
@@ -111,6 +110,10 @@ void UScannableManagementSubsystem::SpawnScannable() {
 	}
 	if (RarityDataAsset == nullptr) {
 		return;
+	}
+
+	if (!bAScanAbilitiesGranted) {
+		HaveScanAbilitiesGranted();
 	}
 
 	UpdateCooldowns();
@@ -251,9 +254,11 @@ void UScannableManagementSubsystem::UpdateScannables(float DeltaTime) {
 				ASC->TriggerAbilityFromGameplayEvent(MatchingGameplayAbilities[j]->Handle, &GainScoreActorInfo, ScannableDestroyedEventTag, Data, *ASC);
 			}
 			
-			if (FailAbilities.Num() > 0) {
-				int index = FMath::RandHelper(FailAbilities.Num());
-				ASC->TryActivateAbilityByClass(FailAbilities[index]);
+			FRarityDataAssetPart Rarity = GetRarityTierOfScannable(Scannables[i]);
+
+			if (Rarity.FailAbilities.Num() > 0) {
+				int index = FMath::RandHelper(Rarity.FailAbilities.Num());
+				ASC->TryActivateAbilityByClass(Rarity.FailAbilities[index]);
 			}
 
 			Scannables[i]->Destroy();
@@ -296,4 +301,29 @@ void UScannableManagementSubsystem::UpdateCooldowns() {
 		It->Value -= 1;
 	}
 
+}
+
+void UScannableManagementSubsystem::HaveScanAbilitiesGranted() {
+
+	if (!RarityDataAsset) return;
+
+	const AActor* Player = UGameplayStatics::GetPlayerCharacter(GetWorld(), 0);
+	check(Player);
+
+	UAbilitySystemComponent* ASC =
+		UAbilitySystemGlobals::GetAbilitySystemComponentFromActor(Player, true);
+	check(ASC);
+
+
+	for (FRarityDataAssetPart RarityTier : RarityDataAsset->Rarities) {
+		for (TSubclassOf<UGameplayAbilityBase> FailAbility : RarityTier.FailAbilities) {
+			ASC->GiveAbility(FGameplayAbilitySpec(FailAbility, 1, 0, this));
+		}
+
+		for (TSubclassOf<UScanAbility> SuccessAbility : RarityTier.ScanAbilities) {
+			ASC->GiveAbility(FGameplayAbilitySpec(SuccessAbility, 1, 0, this));
+		}
+	}
+
+	bAScanAbilitiesGranted = true;
 }

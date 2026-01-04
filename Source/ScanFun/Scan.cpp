@@ -3,6 +3,8 @@
 
 #include "Scan.h"
 #include "PlayerCharacter.h"
+#include "ScannableManagementSubsystem.h"
+#include "ScanAbility.h"
 #include "Scannable.h"
 #include "Engine/OverlapResult.h"
 
@@ -77,6 +79,31 @@ void UScan::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGame
 				for (int i = 0; i < MatchingGameplayAbilities.Num(); i++) {
 					ASC->TriggerAbilityFromGameplayEvent(MatchingGameplayAbilities[i]->Handle, GainScoreActorInfo, GainScoreEventTag, Data, *ASC);
 					//ASC->TryActivateAbility(MatchingGameplayAbilities[i]->Handle);
+				}
+
+				UScannableManagementSubsystem* ScannableManagementSubsystem = GetWorld()->GetSubsystem<UScannableManagementSubsystem>();
+
+				FRarityDataAssetPart RarityTier = ScannableManagementSubsystem->GetRarityTierOfScannable(Scannable);
+				UScanAbility* Ability = nullptr; // Invalid if not Case 1
+				int randInt;
+				switch (RarityTier.ScanAbilities.Num()) {
+					case 0:
+						break; // No abilities
+					case 1: 
+						randInt = FMath::RandRange(0, 100);
+						Ability = RarityTier.ScanAbilities[0]->GetDefaultObject<UScanAbility>();
+						if (!Ability) {
+							UE_LOG(LogTemp, Error, TEXT("Ability is invalid"));
+							return;
+						}
+						if (randInt >= Ability->ChanceOfActivation) {
+							ASC->TryActivateAbilityByClass(RarityTier.ScanAbilities[0]);
+						}
+						break;
+					default:
+						randInt = FMath::RandRange(0, RarityTier.ScanAbilities.Num()-1);
+						ASC->TryActivateAbilityByClass(RarityTier.ScanAbilities[randInt]);
+						break;
 				}
 				
 			}
