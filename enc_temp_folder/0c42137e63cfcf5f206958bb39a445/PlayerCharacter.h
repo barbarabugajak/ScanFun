@@ -44,7 +44,7 @@ public:
 	UMaterialInstanceDynamic* DynMaterial;
 
 	UFUNCTION(BlueprintCallable)
-	void SetupScannerBeamParams(FScannerType ScannerType);
+	void SetupScannerConeParams(FScannerType ScannerType);
 
 	// Enhanced Input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;

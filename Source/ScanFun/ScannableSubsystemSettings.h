@@ -38,12 +38,15 @@ public:
 	// Tags
 	UPROPERTY(Config, EditAnywhere, BlueprintReadOnly,  Category = "Tags")
 	FGameplayTagContainer LoseScoreTagContainer;
+	UPROPERTY(Config, EditAnywhere, BlueprintReadOnly, Category = "Tags")
+	FGameplayTag ScannableDestroyedEventTag;
 
+	// Data Assets
 	UPROPERTY(Config, EditAnywhere, BlueprintReadOnly, Category = "Rarity")
 	FSoftObjectPath RarityDataAssetPath;
 
-	UPROPERTY(Config, EditAnywhere, BlueprintReadOnly, Category = "Tags")
-	FGameplayTag ScannableDestroyedEventTag;
+	UPROPERTY(Config, EditAnywhere, BlueprintReadOnly, Category = "Scanner")
+	FSoftObjectPath ScannerDataAssetPath;
 
 	UPROPERTY(Config, EditAnywhere, BlueprintReadOnly, Category = "Speed")
 	float SpawnDelay = 0.75f;

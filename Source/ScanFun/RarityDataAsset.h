@@ -10,7 +10,7 @@
 /**
  * 
  */
-USTRUCT()
+USTRUCT(BlueprintType)
 struct FRarityDataAssetPart {
 
 	GENERATED_BODY()
@@ -35,6 +35,9 @@ struct FRarityDataAssetPart {
 
 	UPROPERTY(EditAnywhere, Category = "Abilities")
 	TArray<TSubclassOf<UGameplayAbilityBase>> FailAbilities;
+
+	UPROPERTY(EditAnywhere, Category = "Scanners", meta = (GetOptions = "ScannableManagementSubsystem.GetScannerTypes"))
+	TArray<FString> ScannerTypes;
 
 };
 

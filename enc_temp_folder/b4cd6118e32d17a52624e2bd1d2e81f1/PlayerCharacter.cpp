@@ -84,7 +84,7 @@ UAbilitySystemComponent* APlayerCharacter::GetAbilitySystemComponent() const
 
 }
 
-void APlayerCharacter::SetupScannerBeamParams(FScannerType ScannerType) {
+void APlayerCharacter::SetupScannerConeParams(FScannerType ScannerType) {
 
 	DynMaterial = ScannerConeComp->CreateDynamicMaterialInstance(0);
 

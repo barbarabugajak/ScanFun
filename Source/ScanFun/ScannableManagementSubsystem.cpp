@@ -46,8 +46,6 @@ void UScannableManagementSubsystem::Initialize(FSubsystemCollectionBase& Collect
 
 	Settings->RarityDataAssetPath.LoadAsync(FLoadSoftObjectPathAsyncDelegate::CreateLambda(
 		[this](const FSoftObjectPath& Path, UObject* LoadedAsset) {
-
-			UE_LOG(LogTemp, Log, TEXT("In Async Rarity"));
 			
 			if (!LoadedAsset) {
 				UE_LOG(LogTemp, Error, TEXT("Asset did not load from path: "), *Path.ToString());
@@ -62,6 +60,24 @@ void UScannableManagementSubsystem::Initialize(FSubsystemCollectionBase& Collect
 			}
 		}
 	));
+
+	Settings->ScannerDataAssetPath.LoadAsync(FLoadSoftObjectPathAsyncDelegate::CreateLambda(
+		[this](const FSoftObjectPath& Path, UObject* LoadedAsset) {
+
+			if (!LoadedAsset) {
+				UE_LOG(LogTemp, Error, TEXT("Asset did not load from path: "), *Path.ToString());
+			}
+
+			if (UScannerData* LoadedDataAsset = Cast<UScannerData>(LoadedAsset)) {
+
+				ScannerDataAsset = LoadedDataAsset;
+			}
+			else {
+				UE_LOG(LogTemp, Error, TEXT("Loaded asset did not match type. Loaded from %s"), *Path.ToString());
+			}
+		}
+	));
+
 
 }
 
@@ -326,4 +342,19 @@ void UScannableManagementSubsystem::HaveScanAbilitiesGranted() {
 	}
 
 	bAScanAbilitiesGranted = true;
+}
+
+
+FScannerType UScannableManagementSubsystem::GetScannerTypeFromName(const FString Name) {
+	FScannerType Item;
+
+	if (!ScannerDataAsset) return Item;
+
+	for (FScannerType Type : ScannerDataAsset->ScannerTypes) {
+		if (Type.Name == Name) {
+			return Type;
+		}
+	}
+
+	return Item;
 }

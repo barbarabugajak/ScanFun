@@ -10,6 +10,7 @@
 #include "ScannableSubsystemSettings.h"
 #include "RarityDataAsset.h"
 #include "ScannableDataRow.h"
+#include "ScannerData.h"
 #include "ScannableManagementSubsystem.generated.h"
 
 /**
@@ -43,6 +44,9 @@ public:
 	UPROPERTY()
 	URarityDataAsset* RarityDataAsset;
 
+	UPROPERTY()
+	UScannerData* ScannerDataAsset;
+
 	UPROPERTY(EditAnywhere)
 	TSubclassOf<AScannable> ScannableToSpawn_Class;
 
@@ -60,6 +64,7 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gameplay Params")
 	float objectSpeed = 300.0f;
 
+	// Belt
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Conveyor Belt")
 	AConveyorBelt* Belt;
 
@@ -68,24 +73,31 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Conveyor Belt")
 	FVector DestructionLocation;
-
+	
+	// Tags
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Tags")
 	FGameplayTagContainer LoseScoreTagContainer;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Tags")
 	FGameplayTag ScannableDestroyedEventTag;
 
+	// Abilities
 	UFUNCTION()
 	void HaveScanAbilitiesGranted();
 
 	UPROPERTY(VisibleAnywhere)
 	bool bAScanAbilitiesGranted = false;
 
+	// Gameplay
 	UFUNCTION()
 	void UpdateCooldowns();
 
-	UFUNCTION()
+	UFUNCTION(BlueprintCallable)
 	FRarityDataAssetPart GetRarityTierOfScannable(const AScannable* Scannable);
+
+	UFUNCTION(BlueprintCallable)
+	FScannerType GetScannerTypeFromName(const FString Name);
+
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Rarity Tiers")
 	TMap<FString, int> Cooldowns;
@@ -118,5 +130,31 @@ public:
 		}
 
 		return RarityNames;
+	}
+
+	UFUNCTION()
+	static TArray<FString> GetScannerTypes()
+	{
+		TArray<FString> ScannerTypes;
+
+		const UScannableSubsystemSettings* Settings = GetDefault<UScannableSubsystemSettings>();
+		if (!Settings)
+		{
+			return ScannerTypes;
+		}
+
+		UScannerData* LoadedDataAsset = Cast<UScannerData>(Settings->ScannerDataAssetPath.TryLoad());
+
+		if (!LoadedDataAsset)
+		{
+			return ScannerTypes;
+		}
+
+		for (const FScannerType& Item : LoadedDataAsset->ScannerTypes)
+		{
+			ScannerTypes.Add(Item.Name);
+		}
+
+		return ScannerTypes;
 	}
 };
