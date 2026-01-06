@@ -30,4 +30,8 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Properties | GameplayTags")
 	FGameplayTag GainScoreEventTag;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Properties | GameplayTags")
+	FGameplayTag CooldownMagnitudeTag;
+
 };

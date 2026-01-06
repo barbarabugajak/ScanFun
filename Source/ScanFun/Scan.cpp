@@ -45,6 +45,8 @@ void UScan::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGame
 		Character->ScannerConeComp->GetComponentRotation()
 	);
 
+	bool bWasScanSuccesful = false;
+
 	if (bAnyOverlaps) {
 
 		for (const FOverlapResult& obj : Results) {
@@ -67,6 +69,9 @@ void UScan::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGame
 				continue;
 
 			if (Component->ComponentHasTag("QR")) {
+
+				bWasScanSuccesful = true;
+
 				Scannable->bWasScanned = true;
 
 				FGameplayEventData DataSetup;
@@ -109,7 +114,18 @@ void UScan::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGame
 			}
 		}
 	}
+	
 
+	Character->ScanAbility_Activated(bWasScanSuccesful);
+
+	// Cooldown
+	UGameplayEffect* CooldownGE = GetCooldownGameplayEffect();
+	if (CooldownGE)
+	{
+		FGameplayEffectSpecHandle Spec = ASC->MakeOutgoingSpec(CooldownGE->GetClass(), 1, Context);
+		Spec.Data->SetSetByCallerMagnitude(CooldownMagnitudeTag, Character->CurrentScanerType.Cooldown);
+		ASC->ApplyGameplayEffectSpecToSelf(*Spec.Data.Get());
+	}
 
 	EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateInputDirectly, false);
 }

@@ -56,6 +56,8 @@ void APlayerCharacter::BeginPlay()
 	for (TSubclassOf<UGameplayAbilityBase> AbilityClass : StartingAbilities) {
 		ASC->GiveAbility(FGameplayAbilitySpec(AbilityClass, 1, 0, this));
 	}
+
+	DynMaterial = ScannerConeComp->CreateDynamicMaterialInstance(0);
 }
 
 // Called every frame
@@ -99,4 +101,6 @@ void APlayerCharacter::SetupScannerBeamParams(FScannerType ScannerType) {
 	FVector Position(0, 0, -1.9*BoxExtent.Z);
 
 	ScannerConeComp->SetRelativeLocation(Position);
+
+	CurrentScanerType = ScannerType;
 }

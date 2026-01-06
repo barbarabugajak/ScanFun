@@ -41,10 +41,10 @@ public:
 	UPROPERTY(EditAnywhere)
 	UDataTable* QRDataTable;
 
-	UPROPERTY()
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	URarityDataAsset* RarityDataAsset;
 
-	UPROPERTY()
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	UScannerData* ScannerDataAsset;
 
 	UPROPERTY(EditAnywhere)

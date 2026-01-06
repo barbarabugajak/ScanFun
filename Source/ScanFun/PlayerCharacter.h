@@ -46,6 +46,9 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void SetupScannerBeamParams(FScannerType ScannerType);
 
+	UPROPERTY(BlueprintReadOnly, EditAnywhere)
+	FScannerType CurrentScanerType;
+
 	// Enhanced Input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
@@ -69,4 +72,6 @@ public:
 	UFUNCTION(BlueprintImplementableEvent)
 	void AttributeSet_ScoreChaned(float OldValue, float NewValue);
 
+	UFUNCTION(BlueprintImplementableEvent)
+	void ScanAbility_Activated(bool didAnythingGetScanned);
 };
