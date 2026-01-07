@@ -9,6 +9,7 @@
 #include "InputMappingContext.h"
 #include "EnhancedInputSubsystems.h"
 #include "ScannableManagementSubsystem.h"
+#include "Scan.h"
 #include "Kismet/GameplayStatics.h"
 
 
@@ -43,6 +44,16 @@ void APlayerCharacter::BeginPlay()
 		[this](const FOnAttributeChangeData& Data)
 		{
 			AttributeSet_ScoreChaned(Data.OldValue, Data.NewValue);
+		}
+	);
+
+	ASC->AbilityFailedCallbacks.AddLambda(
+		[this](const UGameplayAbility* Ability, const FGameplayTagContainer& FailureTags)
+		{
+			const UScan* Scan = Cast<UScan>(Ability);
+			if (Scan) {
+				ScanAbility_ActivationFailed();
+			}
 		}
 	);
 

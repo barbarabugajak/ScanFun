@@ -74,4 +74,7 @@ public:
 
 	UFUNCTION(BlueprintImplementableEvent)
 	void ScanAbility_Activated(bool didAnythingGetScanned);
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void ScanAbility_ActivationFailed();
 };
