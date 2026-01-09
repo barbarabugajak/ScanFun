@@ -101,6 +101,15 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Rarity Tiers")
 	TMap<FString, int> Cooldowns;
+
+	UFUNCTION()
+	void TryTriggeringRandomFailAbility(int indexOfScannable);
+
+	UPROPERTY()
+	AActor* Player;
+
+	UPROPERTY()
+	UAbilitySystemComponent* ASC;
 private:
 	UPROPERTY()
 	float spawnDelayValueCounter = 0.f;

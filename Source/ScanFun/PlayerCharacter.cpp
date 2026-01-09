@@ -40,6 +40,10 @@ void APlayerCharacter::BeginPlay()
 	checkf(ASC != nullptr, TEXT("ASC is null in BeginPlay"));
 	ASC->OnActiveGameplayEffectAddedDelegateToSelf.AddUObject(this, &APlayerCharacter::OnActiveGameplayEffectAddedCallback);
 
+	UScannableManagementSubsystem* ScannableSubSys = GetWorld()->GetSubsystem< UScannableManagementSubsystem>();
+	ScannableSubSys->Player = this;
+	ScannableSubSys->ASC = ASC;
+
 	ASC->GetGameplayAttributeValueChangeDelegate(BasicDataAttributeSet->GetScoreAttribute()).AddLambda(
 		[this](const FOnAttributeChangeData& Data)
 		{

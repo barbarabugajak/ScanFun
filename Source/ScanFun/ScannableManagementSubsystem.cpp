@@ -100,7 +100,11 @@ void UScannableManagementSubsystem::Tick(float DeltaTime) {
 
 	UpdateScannables(DeltaTime);
 
-	TArray<FString> Rarities = GetRarities();
+	if (!bAScanAbilitiesGranted) {
+		HaveScanAbilitiesGranted();
+	}
+
+	// Setup first Scanner Beam here 
 }
 
 void UScannableManagementSubsystem::SetConveyorBeltSetupRelatedVariables(AConveyorBelt* ConveyorBelt) {
@@ -127,9 +131,8 @@ void UScannableManagementSubsystem::SpawnScannable() {
 	if (RarityDataAsset == nullptr) {
 		return;
 	}
-
 	if (!bAScanAbilitiesGranted) {
-		HaveScanAbilitiesGranted();
+		return;
 	}
 
 	UpdateCooldowns();
@@ -245,37 +248,8 @@ void UScannableManagementSubsystem::UpdateScannables(float DeltaTime) {
 		FVector Location = Scannables[i]->GetActorLocation();
 
 		if (Location.Y < DestructionLocation.Y) {
-
-			const AActor* Player = UGameplayStatics::GetPlayerCharacter(GetWorld(), 0);
-			check(Player);
-
-			UAbilitySystemComponent* ASC =
-				UAbilitySystemGlobals::GetAbilitySystemComponentFromActor(Player, true);
-			check(ASC);
-
-			// Get the handle of abilitity to activate
-			TArray<FGameplayAbilitySpec*> MatchingGameplayAbilities;
-			ASC->GetActivatableGameplayAbilitySpecsByAllMatchingTags(LoseScoreTagContainer, MatchingGameplayAbilities);
-
-			FGameplayEventData DataSetup;
-
-			DataSetup.OptionalObject = Scannables[i];
-
-			const FGameplayEventData* Data = &DataSetup;
-
-			FGameplayAbilityActorInfo GainScoreActorInfo;
-			GainScoreActorInfo.InitFromActor(const_cast<AActor*>(Player), const_cast<AActor*>(Player), ASC);
-
-			for (int j = 0; j < MatchingGameplayAbilities.Num(); j++) {
-				ASC->TriggerAbilityFromGameplayEvent(MatchingGameplayAbilities[j]->Handle, &GainScoreActorInfo, ScannableDestroyedEventTag, Data, *ASC);
-			}
+			TryTriggeringRandomFailAbility(i);
 			
-			FRarityDataAssetPart Rarity = GetRarityTierOfScannable(Scannables[i]);
-
-			if (Rarity.FailAbilities.Num() > 0) {
-				int index = FMath::RandHelper(Rarity.FailAbilities.Num());
-				ASC->TryActivateAbilityByClass(Rarity.FailAbilities[index]);
-			}
 
 			Scannables[i]->Destroy();
 			Scannables.RemoveAt(i);
@@ -323,12 +297,15 @@ void UScannableManagementSubsystem::HaveScanAbilitiesGranted() {
 
 	if (!RarityDataAsset) return;
 
-	const AActor* Player = UGameplayStatics::GetPlayerCharacter(GetWorld(), 0);
-	check(Player);
+	if (!(ASC)) {
+		UE_LOG(LogTemp, Error, TEXT("ASC ref invalid in ScannableManagementSubsystem"));
+		return;
+	}
 
-	UAbilitySystemComponent* ASC =
-		UAbilitySystemGlobals::GetAbilitySystemComponentFromActor(Player, true);
-	check(ASC);
+	if (!(Player)) {
+		UE_LOG(LogTemp, Error, TEXT("Player ref invalid in ScannableManagementSubsystem"));
+		return;
+	}
 
 
 	for (FRarityDataAssetPart RarityTier : RarityDataAsset->Rarities) {
@@ -357,4 +334,40 @@ FScannerType UScannableManagementSubsystem::GetScannerTypeFromName(const FString
 	}
 
 	return Item;
+}
+
+void UScannableManagementSubsystem::TryTriggeringRandomFailAbility(int indexOfScannable) {
+
+	if (!(ASC)) {
+		UE_LOG(LogTemp, Error, TEXT("ASC ref invalid in ScannableManagementSubsystem"));
+		return;
+	}
+
+	if (!(Player)) {
+		UE_LOG(LogTemp, Error, TEXT("Player ref invalid in ScannableManagementSubsystem"));
+		return;
+	}
+
+	TArray<FGameplayAbilitySpec*> MatchingGameplayAbilities;
+	ASC->GetActivatableGameplayAbilitySpecsByAllMatchingTags(LoseScoreTagContainer, MatchingGameplayAbilities);
+
+	FGameplayEventData DataSetup;
+
+	DataSetup.OptionalObject = Scannables[indexOfScannable];
+
+	const FGameplayEventData* Data = &DataSetup;
+
+	FGameplayAbilityActorInfo GainScoreActorInfo;
+	GainScoreActorInfo.InitFromActor(const_cast<AActor*>(Player), const_cast<AActor*>(Player), ASC);
+
+	for (int j = 0; j < MatchingGameplayAbilities.Num(); j++) {
+		ASC->TriggerAbilityFromGameplayEvent(MatchingGameplayAbilities[j]->Handle, &GainScoreActorInfo, ScannableDestroyedEventTag, Data, *ASC);
+	}
+
+	FRarityDataAssetPart Rarity = GetRarityTierOfScannable(Scannables[indexOfScannable]);
+
+	if (Rarity.FailAbilities.Num() > 0) {
+		int index = FMath::RandHelper(Rarity.FailAbilities.Num());
+		ASC->TryActivateAbilityByClass(Rarity.FailAbilities[index]);
+	}
 }
