@@ -213,24 +213,30 @@ void UScannableManagementSubsystem::SpawnScannable() {
 				
 
 			if (UStaticMesh* LoadedMesh = Cast<UStaticMesh>(LoadedAsset)) {
-				NewScannable->Mesh->SetStaticMesh(LoadedMesh);
-				NewScannable->Mesh->SetRelativeScale3D(FVector(Item->Asset_Scale, Item->Asset_Scale, Item->Asset_Scale));
-				FVector SpawnPos = SpawnLocation;
-				FVector Origin, Extent;
-				NewScannable->GetActorBounds(true, Origin, Extent);
-				SpawnPos.Z += Extent.Z;
 
-				NewScannable->SetActorLocation(SpawnPos);
+				GetWorld()->GetTimerManager().SetTimerForNextTick([this, NewScannable, LoadedMesh, Item]()
+					{
+					NewScannable->Mesh->SetStaticMesh(LoadedMesh);
+					NewScannable->Mesh->SetRelativeScale3D(FVector(Item->Asset_Scale, Item->Asset_Scale, Item->Asset_Scale));
+					FVector SpawnPos = SpawnLocation;
+					FVector Origin, Extent;
+					NewScannable->GetActorBounds(true, Origin, Extent);
+					SpawnPos.Z += Extent.Z;
+
+					NewScannable->SetActorLocation(SpawnPos);
+
+					NewScannable->QR->SetRelativeLocation(Item->QRPosition);
+					FRotator NewRot = NewScannable->QR->GetRelativeRotation();
+					NewRot.Pitch += FMath::RandRange(0, 360);
+					NewScannable->QR->SetRelativeRotation(NewRot);
+					double ScaleQR = FMath::FRandRange(MinQRScale, MaxQRScale);
+					NewScannable->QR->SetRelativeScale3D(FVector(ScaleQR, ScaleQR, ScaleQR));
+				});
 			}
 		}
 	));
 
-	NewScannable->QR->SetRelativeLocation(Item->QRPosition);
-	FRotator NewRot = NewScannable->QR->GetRelativeRotation();
-	NewRot.Pitch += FMath::RandRange(0, 360);
-	NewScannable->QR->SetRelativeRotation(NewRot);
-	double ScaleQR = FMath::FRandRange(MinQRScale, MaxQRScale);
-	NewScannable->QR->SetRelativeScale3D(FVector(ScaleQR, ScaleQR, ScaleQR));
+	
 }
 
 void UScannableManagementSubsystem::UpdateScannables(float DeltaTime) {
