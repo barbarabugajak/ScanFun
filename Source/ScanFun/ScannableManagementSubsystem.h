@@ -82,9 +82,6 @@ public:
 	FGameplayTag ScannableDestroyedEventTag;
 
 	// Abilities
-	UFUNCTION()
-	void HaveScanAbilitiesGranted();
-
 	UPROPERTY(VisibleAnywhere)
 	bool bAScanAbilitiesGranted = false;
 
@@ -96,14 +93,17 @@ public:
 	FRarityDataAssetPart GetRarityTierOfScannable(const AScannable* Scannable);
 
 	UFUNCTION(BlueprintCallable)
-	FScannerType GetScannerTypeFromName(const FString Name);
+	FScannerType GetScannerTypeFromName(const FName Name);
 
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Rarity Tiers")
-	TMap<FString, int> Cooldowns;
+	TMap<FName, int> Cooldowns;
 
 	UFUNCTION()
 	void TryTriggeringRandomFailAbility(int indexOfScannable);
+
+	UFUNCTION()
+	void TriggerLoseScore(int indexOfScannable);
 
 	UPROPERTY()
 	AActor* Player;
@@ -116,9 +116,9 @@ private:
 
 public: 
 	UFUNCTION()
-	static TArray<FString> GetRarities()
+	static TArray<FName> GetRarities()
 	{
-		TArray<FString> RarityNames;
+		TArray<FName> RarityNames;
 
 		const UScannableSubsystemSettings* Settings = GetDefault<UScannableSubsystemSettings>();
 		if (!Settings)
@@ -142,9 +142,9 @@ public:
 	}
 
 	UFUNCTION()
-	static TArray<FString> GetScannerTypes()
+	static TArray<FName> GetScannerTypes()
 	{
-		TArray<FString> ScannerTypes;
+		TArray<FName> ScannerTypes;
 
 		const UScannableSubsystemSettings* Settings = GetDefault<UScannableSubsystemSettings>();
 		if (!Settings)

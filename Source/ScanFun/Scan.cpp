@@ -83,34 +83,61 @@ void UScan::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGame
 				FGameplayAbilityActorInfo* GainScoreActorInfo = const_cast<FGameplayAbilityActorInfo *>(ActorInfo);
 				for (int i = 0; i < MatchingGameplayAbilities.Num(); i++) {
 					ASC->TriggerAbilityFromGameplayEvent(MatchingGameplayAbilities[i]->Handle, GainScoreActorInfo, GainScoreEventTag, Data, *ASC);
-					//ASC->TryActivateAbility(MatchingGameplayAbilities[i]->Handle);
 				}
 
 				UScannableManagementSubsystem* ScannableManagementSubsystem = GetWorld()->GetSubsystem<UScannableManagementSubsystem>();
 
 				FRarityDataAssetPart RarityTier = ScannableManagementSubsystem->GetRarityTierOfScannable(Scannable);
-				UScanAbility* Ability = nullptr; // Invalid if not Case 1
-				int randInt;
-				switch (RarityTier.ScanAbilities.Num()) {
-					case 0:
-						break; // No abilities
-					case 1: 
-						randInt = FMath::RandRange(0, 100);
-						Ability = RarityTier.ScanAbilities[0]->GetDefaultObject<UScanAbility>();
+
+				// Rework class to spec
+				int AmountOfScanAbilityTags = RarityTier.ScanAbilities.Num();
+
+				if (AmountOfScanAbilityTags <= 0) {
+					// Do nothing - no tags, so no abilities
+				}
+				// There's at least one tag
+				else if (AmountOfScanAbilityTags >= 1) {
+
+					TArray<FGameplayAbilitySpec*> AllMatchingSpecs;
+
+					// Get abilities from all tags
+					for (int i = 0; i < RarityTier.ScanAbilities.Num(); i++) {
+						TArray<FGameplayAbilitySpec*> MatchingAbilities;
+						ASC->GetActivatableGameplayAbilitySpecsByAllMatchingTags(RarityTier.ScanAbilities[i], MatchingAbilities);
+
+						for (int j = 0; j < MatchingAbilities.Num(); j++) {
+							// Check if it actually is a ScanAbility [or derived if the designer created a custom child class]
+							if (MatchingAbilities[j]->Ability->GetClass()->IsChildOf(UScanAbility::StaticClass())) {
+								// No duplicates
+								if (!AllMatchingSpecs.Contains(MatchingAbilities[j])) {
+									AllMatchingSpecs.Add(MatchingAbilities[j]);
+								}
+							}
+						}
+					}
+
+					
+					// There's only one ability, check its probability of triggering
+					if (AllMatchingSpecs.Num() == 1) {
+
+						UScanAbility* Ability = Cast<UScanAbility>(AllMatchingSpecs[0]->Ability);
 						if (!Ability) {
 							UE_LOG(LogTemp, Error, TEXT("Ability is invalid"));
 							return;
 						}
-						if (randInt >= Ability->ChanceOfActivation) {
-							ASC->TryActivateAbilityByClass(RarityTier.ScanAbilities[0]);
+
+						int randomNumber = FMath::RandRange(0, 100);
+						if (randomNumber >= Ability->ChanceOfActivation) {
+							ASC->TryActivateAbility(AllMatchingSpecs[0]->Handle);
 						}
-						break;
-					default:
-						randInt = FMath::RandRange(0, RarityTier.ScanAbilities.Num()-1);
-						ASC->TryActivateAbilityByClass(RarityTier.ScanAbilities[randInt]);
-						break;
-				}
-				
+					}
+					// There's more than one ability - trigger one of them at random
+					else if (AllMatchingSpecs.Num() > 1) {
+						int randomIndex = FMath::RandHelper(AllMatchingSpecs.Num());
+						ASC->TryActivateAbility(AllMatchingSpecs[randomIndex]->Handle);
+					}
+					
+				}	
 			}
 		}
 	}

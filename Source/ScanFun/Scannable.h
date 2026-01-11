@@ -47,5 +47,5 @@ public:
 	bool bWasScanned = false;
 
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Rarity")
-	FString RarityTierName;
+	FName RarityTierName;
 };

@@ -63,7 +63,7 @@ public:
 
 	// Gameplay Abilities
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "GAS | GameplayAbilities ")
-	TArray<TSubclassOf<UGameplayAbilityBase>> StartingAbilities;
+	TArray<TSubclassOf<UGameplayAbilityBase>> GrantedAbilities;
 
 	UFUNCTION()
 	virtual void OnActiveGameplayEffectAddedCallback(UAbilitySystemComponent* Target, const FGameplayEffectSpec& SpecApplied, FActiveGameplayEffectHandle ActiveHandle);

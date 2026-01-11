@@ -12,7 +12,7 @@ struct SCANFUN_API FScannerType
 	GENERATED_BODY()
 public:
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Params")
-	FString Name;
+	FName Name;
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Params")
 	FLinearColor Color = FLinearColor::Red;
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Params", meta=(UIMin=0, ClampMin=0))
@@ -31,6 +31,6 @@ class SCANFUN_API UScannerData : public UDataAsset
 	GENERATED_BODY()
 
 public:
-	UPROPERTY(EditAnywhere, Category = "Types")
+	UPROPERTY(EditAnywhere, Category = "Types", meta = (TitleProperty = "Name"))
 	TArray<FScannerType> ScannerTypes;
 };

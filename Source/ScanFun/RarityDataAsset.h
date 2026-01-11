@@ -16,7 +16,7 @@ struct FRarityDataAssetPart {
 	GENERATED_BODY()
 
 	UPROPERTY(EditAnywhere, Category = "Params")
-	FString Name;
+	FName Name;
 
 	UPROPERTY(EditAnywhere, Category = "Cosmetic")
 	FColor Color = FColor::Black;
@@ -31,10 +31,10 @@ struct FRarityDataAssetPart {
 	float Price = 0.0f;
 
 	UPROPERTY(EditAnywhere, Category = "Abilities")
-	TArray<TSubclassOf<UScanAbility>> ScanAbilities;
+	TArray<FGameplayTagContainer> ScanAbilities;
 
 	UPROPERTY(EditAnywhere, Category = "Abilities")
-	TArray<TSubclassOf<UGameplayAbilityBase>> FailAbilities;
+	TArray<FGameplayTagContainer> FailAbilities;
 
 	UPROPERTY(EditAnywhere, Category = "Scanners", meta = (GetOptions = "ScannableManagementSubsystem.GetScannerTypes"))
 	TArray<FString> ScannerTypes;
@@ -47,6 +47,6 @@ class SCANFUN_API URarityDataAsset : public UDataAsset
 	GENERATED_BODY()
 
 public:
-	UPROPERTY(EditAnywhere, Category="Rarity")
+	UPROPERTY(EditAnywhere, Category="Rarity", meta = (TitleProperty = "Name"))
 	TArray<FRarityDataAssetPart> Rarities;
 };

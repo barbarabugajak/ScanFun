@@ -100,10 +100,6 @@ void UScannableManagementSubsystem::Tick(float DeltaTime) {
 
 	UpdateScannables(DeltaTime);
 
-	if (!bAScanAbilitiesGranted) {
-		HaveScanAbilitiesGranted();
-	}
-
 	// Setup first Scanner Beam here 
 }
 
@@ -175,7 +171,7 @@ void UScannableManagementSubsystem::SpawnScannable() {
 	}
 	
 	if (GEngine)
-		GEngine->AddOnScreenDebugMessage(-1, 3.0f, ChosenRarity.Color, FString::Printf(TEXT("Rarity: %s"), *ChosenRarity.Name));
+		GEngine->AddOnScreenDebugMessage(-1, 3.0f, ChosenRarity.Color, FString::Printf(TEXT("Rarity: %s"), *ChosenRarity.Name.ToString()));
 
 	TArray< FScannableDataRow*> PossibleItems;
 
@@ -254,6 +250,7 @@ void UScannableManagementSubsystem::UpdateScannables(float DeltaTime) {
 		FVector Location = Scannables[i]->GetActorLocation();
 
 		if (Location.Y < DestructionLocation.Y) {
+			TriggerLoseScore(i);
 			TryTriggeringRandomFailAbility(i);
 			
 
@@ -276,7 +273,7 @@ FRarityDataAssetPart UScannableManagementSubsystem::GetRarityTierOfScannable(con
 		return Item;
 	}
 
-	FString ScannableTierName = Scannable->RarityTierName;
+	FName ScannableTierName = Scannable->RarityTierName;
 
 	for (FRarityDataAssetPart Tier : RarityDataAsset->Rarities) {
 		if (Tier.Name == ScannableTierName) {
@@ -289,7 +286,7 @@ FRarityDataAssetPart UScannableManagementSubsystem::GetRarityTierOfScannable(con
 
 void UScannableManagementSubsystem::UpdateCooldowns() {
 
-	for (TMap<FString, int>::TIterator It = Cooldowns.CreateIterator(); It; ++It){
+	for (TMap<FName, int>::TIterator It = Cooldowns.CreateIterator(); It; ++It){
 		if (It->Value <= 0) {
 			It.RemoveCurrent();
 			continue;
@@ -299,36 +296,8 @@ void UScannableManagementSubsystem::UpdateCooldowns() {
 
 }
 
-void UScannableManagementSubsystem::HaveScanAbilitiesGranted() {
 
-	if (!RarityDataAsset) return;
-
-	if (!(ASC)) {
-		UE_LOG(LogTemp, Error, TEXT("ASC ref invalid in ScannableManagementSubsystem"));
-		return;
-	}
-
-	if (!(Player)) {
-		UE_LOG(LogTemp, Error, TEXT("Player ref invalid in ScannableManagementSubsystem"));
-		return;
-	}
-
-
-	for (FRarityDataAssetPart RarityTier : RarityDataAsset->Rarities) {
-		for (TSubclassOf<UGameplayAbilityBase> FailAbility : RarityTier.FailAbilities) {
-			ASC->GiveAbility(FGameplayAbilitySpec(FailAbility, 1, 0, this));
-		}
-
-		for (TSubclassOf<UScanAbility> SuccessAbility : RarityTier.ScanAbilities) {
-			ASC->GiveAbility(FGameplayAbilitySpec(SuccessAbility, 1, 0, this));
-		}
-	}
-
-	bAScanAbilitiesGranted = true;
-}
-
-
-FScannerType UScannableManagementSubsystem::GetScannerTypeFromName(const FString Name) {
+FScannerType UScannableManagementSubsystem::GetScannerTypeFromName(const FName Name) {
 	FScannerType Item;
 
 	if (!ScannerDataAsset) return Item;
@@ -342,7 +311,7 @@ FScannerType UScannableManagementSubsystem::GetScannerTypeFromName(const FString
 	return Item;
 }
 
-void UScannableManagementSubsystem::TryTriggeringRandomFailAbility(int indexOfScannable) {
+void UScannableManagementSubsystem::TriggerLoseScore(int indexOfScannable) {
 
 	if (!(ASC)) {
 		UE_LOG(LogTemp, Error, TEXT("ASC ref invalid in ScannableManagementSubsystem"));
@@ -358,22 +327,47 @@ void UScannableManagementSubsystem::TryTriggeringRandomFailAbility(int indexOfSc
 	ASC->GetActivatableGameplayAbilitySpecsByAllMatchingTags(LoseScoreTagContainer, MatchingGameplayAbilities);
 
 	FGameplayEventData DataSetup;
-
 	DataSetup.OptionalObject = Scannables[indexOfScannable];
 
 	const FGameplayEventData* Data = &DataSetup;
-
 	FGameplayAbilityActorInfo GainScoreActorInfo;
 	GainScoreActorInfo.InitFromActor(const_cast<AActor*>(Player), const_cast<AActor*>(Player), ASC);
 
+	// This assmues there might be more than one Lose Score Ability, which is OK, assuming that's what the designer wants
+	// There will usually be only one
 	for (int j = 0; j < MatchingGameplayAbilities.Num(); j++) {
 		ASC->TriggerAbilityFromGameplayEvent(MatchingGameplayAbilities[j]->Handle, &GainScoreActorInfo, ScannableDestroyedEventTag, Data, *ASC);
 	}
 
-	FRarityDataAssetPart Rarity = GetRarityTierOfScannable(Scannables[indexOfScannable]);
+}
 
-	if (Rarity.FailAbilities.Num() > 0) {
-		int index = FMath::RandHelper(Rarity.FailAbilities.Num());
-		ASC->TryActivateAbilityByClass(Rarity.FailAbilities[index]);
+void UScannableManagementSubsystem::TryTriggeringRandomFailAbility(int indexOfScannable) {
+
+	if (!(ASC)) {
+		UE_LOG(LogTemp, Error, TEXT("ASC ref invalid in ScannableManagementSubsystem"));
+		return;
 	}
+
+	if (!(Player)) {
+		UE_LOG(LogTemp, Error, TEXT("Player ref invalid in ScannableManagementSubsystem"));
+		return;
+	}
+
+	// Abilities can duplicate, remember! 
+	FRarityDataAssetPart Rarity = GetRarityTierOfScannable(Scannables[indexOfScannable]);
+		
+	TArray < FGameplayAbilitySpec* > AllMatchingSpecs;
+
+	for (int i = 0; i < Rarity.FailAbilities.Num(); i++){
+		TArray<FGameplayAbilitySpec*> MatchingAbilities;
+		ASC->GetActivatableGameplayAbilitySpecsByAllMatchingTags(Rarity.FailAbilities[i], MatchingAbilities);
+		AllMatchingSpecs.Append(MatchingAbilities);
+	}
+	
+	if (AllMatchingSpecs.Num() <= 0) {
+		return; // No ability to activate
+	}
+
+	int index = FMath::RandHelper(AllMatchingSpecs.Num());
+	ASC->TryActivateAbility(AllMatchingSpecs[index]->Handle);
 }

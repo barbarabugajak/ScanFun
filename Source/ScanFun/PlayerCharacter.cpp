@@ -68,10 +68,10 @@ void APlayerCharacter::BeginPlay()
 		return;
 	}
 
-	for (TSubclassOf<UGameplayAbilityBase> AbilityClass : StartingAbilities) {
+	for (TSubclassOf<UGameplayAbilityBase> AbilityClass : GrantedAbilities) {
 		ASC->GiveAbility(FGameplayAbilitySpec(AbilityClass, 1, 0, this));
 	}
-
+	ScannableSubSys->bAScanAbilitiesGranted = true;
 	DynMaterial = ScannerConeComp->CreateDynamicMaterialInstance(0);
 }
 
