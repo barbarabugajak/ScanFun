@@ -10,6 +10,7 @@
 #include "CustomAbilitySystemComponent.h"
 #include "ScanAbility.h"
 #include "ConveyorBelt.h"
+#include "PlayerCharacter.h"
 
 void UScannableManagementSubsystem::Initialize(FSubsystemCollectionBase& Collection) {
 
@@ -78,6 +79,22 @@ void UScannableManagementSubsystem::Initialize(FSubsystemCollectionBase& Collect
 		}
 	));
 
+	Settings->QRCodeTypesDataAssetPath.LoadAsync(FLoadSoftObjectPathAsyncDelegate::CreateLambda(
+		[this](const FSoftObjectPath& Path, UObject* LoadedAsset) {
+
+			if (!LoadedAsset) {
+				UE_LOG(LogTemp, Error, TEXT("Asset did not load from path: "), *Path.ToString());
+			}
+
+			if (UQRCodeType* LoadedDataAsset = Cast<UQRCodeType>(LoadedAsset)) {
+
+				QRCodeTypeDataAsset = LoadedDataAsset;
+			}
+			else {
+				UE_LOG(LogTemp, Error, TEXT("Loaded asset did not match type. Loaded from %s"), *Path.ToString());
+			}
+		}
+	));
 
 }
 
@@ -99,8 +116,10 @@ void UScannableManagementSubsystem::Tick(float DeltaTime) {
 	}
 
 	UpdateScannables(DeltaTime);
-
-	// Setup first Scanner Beam here 
+\
+	if (!bWasInitialScannerBeamSetup) {
+		SetupInitialScannerBeam();
+	}
 }
 
 void UScannableManagementSubsystem::SetConveyorBeltSetupRelatedVariables(AConveyorBelt* ConveyorBelt) {
@@ -200,9 +219,14 @@ void UScannableManagementSubsystem::SpawnScannable() {
 	NewScannable->RarityTierName = ChosenRarity.Name;
 	Scannables.Add(NewScannable);
 
+	TArray<FQRCodeTypeEntry> PossibleQRCodeTypes = GetQRCodeTypesOfRarityType(ChosenRarity);
+
+	checkf(PossibleQRCodeTypes.Num() > 0,TEXT("Every Rarity Tier must have at least one QR Code Type, but the %s tier has none."), *ChosenRarity.Name.ToString());
+
+	FQRCodeTypeEntry ChosenQR = PossibleQRCodeTypes[FMath::RandHelper(PossibleQRCodeTypes.Num())];
 
 	Item->Asset.LoadAsync(FLoadSoftObjectPathAsyncDelegate::CreateLambda(
-		[this, NewScannable, Item](const FSoftObjectPath& Path, UObject* LoadedAsset) {
+		[this, NewScannable, Item, ChosenQR](const FSoftObjectPath& Path, UObject* LoadedAsset) {
 			if (!LoadedAsset) {
 				return;
 			}
@@ -210,7 +234,7 @@ void UScannableManagementSubsystem::SpawnScannable() {
 
 			if (UStaticMesh* LoadedMesh = Cast<UStaticMesh>(LoadedAsset)) {
 
-				GetWorld()->GetTimerManager().SetTimerForNextTick([this, NewScannable, LoadedMesh, Item]()
+				GetWorld()->GetTimerManager().SetTimerForNextTick([this, NewScannable, LoadedMesh, Item, ChosenQR]()
 					{
 					NewScannable->Mesh->SetStaticMesh(LoadedMesh);
 					NewScannable->Mesh->SetRelativeScale3D(FVector(Item->Asset_Scale, Item->Asset_Scale, Item->Asset_Scale));
@@ -227,6 +251,7 @@ void UScannableManagementSubsystem::SpawnScannable() {
 					NewScannable->QR->SetRelativeRotation(NewRot);
 					double ScaleQR = FMath::FRandRange(MinQRScale, MaxQRScale);
 					NewScannable->QR->SetRelativeScale3D(FVector(ScaleQR, ScaleQR, ScaleQR));
+					NewScannable->QRCodeType = ChosenQR;
 				});
 			}
 		}
@@ -370,4 +395,61 @@ void UScannableManagementSubsystem::TryTriggeringRandomFailAbility(int indexOfSc
 
 	int index = FMath::RandHelper(AllMatchingSpecs.Num());
 	ASC->TryActivateAbility(AllMatchingSpecs[index]->Handle);
+}
+
+void UScannableManagementSubsystem::SetupInitialScannerBeam() {
+	if (!ScannerDataAsset) {
+		return; 
+	}
+
+	checkf(ScannerDataAsset->ScannerTypes.Num() > 0, TEXT("There are no Scanners in Scanner Data Asset. At least one must be added in Editor"));
+
+	if (!Player) {
+		return;
+	}
+
+	APlayerCharacter* PlayerCharacter = Cast<APlayerCharacter>(Player);
+	PlayerCharacter->SetupScannerBeamParams(ScannerDataAsset->ScannerTypes[0]); // We assume 0 as default
+
+	bWasInitialScannerBeamSetup = true;
+}
+
+FQRCodeTypeEntry UScannableManagementSubsystem::GetQRCodeTypeFromName(const FName Name) {
+
+	FQRCodeTypeEntry Type;
+
+	if (!QRCodeTypeDataAsset) {
+		return Type;
+	}
+
+	for (FQRCodeTypeEntry Entry : QRCodeTypeDataAsset->Entries) {
+		if (Entry.Name == Name) {
+			return Entry;
+		}
+	}
+
+	return Type;
+}
+
+// Helper to get all possible QR Code Types from Rarity 
+TArray<FQRCodeTypeEntry> UScannableManagementSubsystem::GetQRCodeTypesOfRarityType(const FRarityDataAssetPart RarityTier) {
+	
+	TArray<FQRCodeTypeEntry> Types;
+
+	if (!RarityDataAsset) {
+		return Types;
+	}
+
+	if (!QRCodeTypeDataAsset) {
+		return Types;
+	}
+
+	for (FName Name : RarityTier.QRCodeTypes) {
+		FQRCodeTypeEntry Entry = GetQRCodeTypeFromName(Name);
+		if (!Entry.Name.IsNone()) {
+			Types.Add(GetQRCodeTypeFromName(Name));
+		}
+	}
+
+	return Types;
 }

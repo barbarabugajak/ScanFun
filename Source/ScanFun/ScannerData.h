@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "QRCodeType.h"
 #include "ScannerData.generated.h"
 
 
@@ -21,7 +22,8 @@ public:
 	UStaticMesh* ScannerMesh;
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Mesh")
 	FVector MeshScale = FVector::ZeroVector;
-	
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "QRCode", meta = (GetOptions = "ScannableManagementSubsystem.GetQRCodeTypes"))
+	FString AssignedQRCode;
 };
 
 

@@ -36,9 +36,8 @@ struct FRarityDataAssetPart {
 	UPROPERTY(EditAnywhere, Category = "Abilities")
 	TArray<FGameplayTagContainer> FailAbilities;
 
-	UPROPERTY(EditAnywhere, Category = "Scanners", meta = (GetOptions = "ScannableManagementSubsystem.GetScannerTypes"))
-	TArray<FString> ScannerTypes;
-
+	UPROPERTY(EditAnywhere, Category = "Scanners", meta = (GetOptions = "ScannableManagementSubsystem.GetQRCodeTypes"))
+	TArray<FName> QRCodeTypes;
 };
 
 UCLASS()

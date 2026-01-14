@@ -38,6 +38,12 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void SetConveyorBeltSetupRelatedVariables(AConveyorBelt* ConveyorBelt);
 
+	UFUNCTION()
+	void SetupInitialScannerBeam();
+	
+	UPROPERTY()
+	bool bWasInitialScannerBeamSetup = false;
+
 	UPROPERTY(EditAnywhere)
 	UDataTable* QRDataTable;
 
@@ -46,6 +52,9 @@ public:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	UScannerData* ScannerDataAsset;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	UQRCodeType* QRCodeTypeDataAsset;
 
 	UPROPERTY(EditAnywhere)
 	TSubclassOf<AScannable> ScannableToSpawn_Class;
@@ -95,6 +104,11 @@ public:
 	UFUNCTION(BlueprintCallable)
 	FScannerType GetScannerTypeFromName(const FName Name);
 
+	UFUNCTION(BlueprintCallable)
+	FQRCodeTypeEntry GetQRCodeTypeFromName(const FName Name);
+
+	UFUNCTION(BlueprintCallable)
+	TArray<FQRCodeTypeEntry> GetQRCodeTypesOfRarityType(const FRarityDataAssetPart RarityTier);
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Rarity Tiers")
 	TMap<FName, int> Cooldowns;
@@ -165,5 +179,30 @@ public:
 		}
 
 		return ScannerTypes;
+	}
+
+	UFUNCTION()
+	static TArray<FName> GetQRCodeTypes() {
+		TArray<FName> QRCodeTypes;
+
+		const UScannableSubsystemSettings* Settings = GetDefault<UScannableSubsystemSettings>();
+		if (!Settings)
+		{
+			return QRCodeTypes;
+		}
+
+		UQRCodeType* LoadedDataAsset = Cast<UQRCodeType>(Settings->QRCodeTypesDataAssetPath.TryLoad());
+
+		if (!LoadedDataAsset)
+		{
+			return QRCodeTypes;
+		}
+
+		for (const FQRCodeTypeEntry& Item : LoadedDataAsset->Entries)
+		{
+			QRCodeTypes.Add(Item.Name);
+		}
+
+		return QRCodeTypes;
 	}
 };

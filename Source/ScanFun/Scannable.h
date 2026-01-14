@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "QRCodeType.h"
 #include "Scannable.generated.h"
 
 UCLASS()
@@ -35,6 +36,9 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "QR | Params")
 	double MaxQRScale;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "QR | Params")
+	FQRCodeTypeEntry QRCodeType;
 
 	// Data
 	UPROPERTY(EditDefaultsOnly, Category = "DataTable | QR")
