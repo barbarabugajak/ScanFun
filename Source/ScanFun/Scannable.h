@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "QRCodeType.h"
+#include "ScannableDataRow.h"
 #include "Scannable.generated.h"
 
 UCLASS()
@@ -40,12 +41,12 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "QR | Params")
 	FQRCodeTypeEntry QRCodeType;
 
+	UFUNCTION(BlueprintCallable)
+	void SetupQRCode(FScannableDataRow Item, FQRCodeTypeEntry QRCodeTypeChosen);
+
 	// Data
 	UPROPERTY(EditDefaultsOnly, Category = "DataTable | QR")
 	UDataTable* QRDataTable;
-
-	UFUNCTION()
-	void SetupQRCode();
 
 	UPROPERTY(EditAnywhere, Category = "Scan")
 	bool bWasScanned = false;

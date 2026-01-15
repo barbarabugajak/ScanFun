@@ -19,9 +19,6 @@ AScannable::AScannable()
 void AScannable::BeginPlay()
 {
 	Super::BeginPlay();
-
-	SetupQRCode();
-
 }
 
 // Called every frame
@@ -30,37 +27,18 @@ void AScannable::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 }
 
-void AScannable::SetupQRCode() {
+void AScannable::SetupQRCode(FScannableDataRow Item, FQRCodeTypeEntry QRCodeTypeChosen) {
 
-	if (!QRDataTable)
-		return;
-
-	TArray<FName> RowNames = QRDataTable->GetRowNames();
-
-	FQRData* Item = QRDataTable->FindRow<FQRData>(RowNames[FMath::RandRange(0, RowNames.Num() - 1)], "");
-	
-	if (Item->Asset.IsNull()) {
-		return;
-	}
-
-	Item->Asset.LoadAsync(FLoadSoftObjectPathAsyncDelegate::CreateLambda(
-		[this](const FSoftObjectPath& Path, UObject* LoadedAsset) {
-			if (!LoadedAsset) {
-				return;
-			}
-				
-
-			if (UStaticMesh* LoadedMesh = Cast<UStaticMesh>(LoadedAsset)) {
-				Mesh->SetStaticMesh(LoadedMesh);
-			}
-		}
-	));
-
-	QR->SetRelativeLocation(Item->QRPosition);
+	QR->SetRelativeLocation(Item.QRPosition);
 	FRotator NewRot = QR->GetRelativeRotation();
 	NewRot.Pitch += FMath::RandRange(0, 360);
 	QR->SetRelativeRotation(NewRot);
 	double ScaleQR = FMath::FRandRange(MinQRScale, MaxQRScale);
 	QR->SetRelativeScale3D(FVector(ScaleQR, ScaleQR, ScaleQR));
+	QRCodeType = QRCodeTypeChosen;
 
+	UMaterialInstanceDynamic* DynamicMaterial = QR->CreateDynamicMaterialInstance(0);
+	if (DynamicMaterial) {
+		DynamicMaterial->SetVectorParameterValue("Color", QRCodeType.Color);
+	}
 }

@@ -110,8 +110,12 @@ public:
 	UFUNCTION(BlueprintCallable)
 	TArray<FQRCodeTypeEntry> GetQRCodeTypesOfRarityType(const FRarityDataAssetPart RarityTier);
 
+	UFUNCTION(BlueprintCallable)
+	FLinearColor GetColorOfScanner(const FScannerType Scanner);
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Rarity Tiers")
 	TMap<FName, int> Cooldowns;
+
 
 	UFUNCTION()
 	void TryTriggeringRandomFailAbility(int indexOfScannable);

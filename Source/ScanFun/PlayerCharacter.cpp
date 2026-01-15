@@ -105,7 +105,9 @@ void APlayerCharacter::SetupScannerBeamParams(FScannerType ScannerType) {
 
 	DynMaterial = ScannerConeComp->CreateDynamicMaterialInstance(0);
 
-	DynMaterial->SetVectorParameterValue(TEXT("Color"), ScannerType.Color);
+	UScannableManagementSubsystem* ScannableSubSys = GetWorld()->GetSubsystem< UScannableManagementSubsystem>();
+	FLinearColor Color = ScannableSubSys->GetColorOfScanner(ScannerType);
+	DynMaterial->SetVectorParameterValue(TEXT("Color"), Color);
 
 	ScannerConeComp->SetStaticMesh(ScannerType.ScannerMesh);
 	ScannerConeComp->SetRelativeScale3D(ScannerType.MeshScale);

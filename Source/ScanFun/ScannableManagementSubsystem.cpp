@@ -245,13 +245,7 @@ void UScannableManagementSubsystem::SpawnScannable() {
 
 					NewScannable->SetActorLocation(SpawnPos);
 
-					NewScannable->QR->SetRelativeLocation(Item->QRPosition);
-					FRotator NewRot = NewScannable->QR->GetRelativeRotation();
-					NewRot.Pitch += FMath::RandRange(0, 360);
-					NewScannable->QR->SetRelativeRotation(NewRot);
-					double ScaleQR = FMath::FRandRange(MinQRScale, MaxQRScale);
-					NewScannable->QR->SetRelativeScale3D(FVector(ScaleQR, ScaleQR, ScaleQR));
-					NewScannable->QRCodeType = ChosenQR;
+					NewScannable->SetupQRCode(*Item, ChosenQR);
 				});
 			}
 		}
@@ -452,4 +446,12 @@ TArray<FQRCodeTypeEntry> UScannableManagementSubsystem::GetQRCodeTypesOfRarityTy
 	}
 
 	return Types;
+}
+
+FLinearColor UScannableManagementSubsystem::GetColorOfScanner(const FScannerType Scanner) {
+	FQRCodeTypeEntry QRCode = GetQRCodeTypeFromName(Scanner.AssignedQRCode);
+	if (QRCode.Name.IsNone()) {
+		UE_LOG(LogTemp, Error, TEXT("%s has no QR code assigned. Color set to default"), *Scanner.Name.ToString());
+	}
+	return QRCode.Color;
 }

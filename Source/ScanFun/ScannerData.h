@@ -14,8 +14,6 @@ struct SCANFUN_API FScannerType
 public:
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Params")
 	FName Name;
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Params")
-	FLinearColor Color = FLinearColor::Red;
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Params", meta=(UIMin=0, ClampMin=0))
 	float Cooldown = 0.25f;
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Mesh")
@@ -23,7 +21,7 @@ public:
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Mesh")
 	FVector MeshScale = FVector::ZeroVector;
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "QRCode", meta = (GetOptions = "ScannableManagementSubsystem.GetQRCodeTypes"))
-	FString AssignedQRCode;
+	FName AssignedQRCode;
 };
 
 
