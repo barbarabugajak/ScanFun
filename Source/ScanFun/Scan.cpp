@@ -45,6 +45,9 @@ void UScan::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGame
 		Character->ScannerConeComp->GetComponentRotation()
 	);
 
+	UScannableManagementSubsystem* ScannableManagementSubsystem = GetWorld()->GetSubsystem<UScannableManagementSubsystem>();
+	check(ScannableManagementSubsystem->QRCodeTypeDataAsset);
+
 	bool bWasScanSuccesful = false;
 
 	if (bAnyOverlaps) {
@@ -71,7 +74,8 @@ void UScan::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGame
 
 			if (Component->ComponentHasTag("QR")) {
 
-				if (Character->CurrentScanerType.AssignedQRCode == Scannable->QRCodeType.Name) {
+				if (Character->CurrentScanerType.AssignedQRCode == Scannable->QRCodeType.Name || 
+					Scannable->QRCodeType.Name == ScannableManagementSubsystem->QRCodeTypeDataAsset->DefaultQRCode) {
 
 					bWasScanSuccesful = true;
 
@@ -87,8 +91,6 @@ void UScan::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGame
 					for (int i = 0; i < MatchingGameplayAbilities.Num(); i++) {
 						ASC->TriggerAbilityFromGameplayEvent(MatchingGameplayAbilities[i]->Handle, GainScoreActorInfo, GainScoreEventTag, Data, *ASC);
 					}
-
-					UScannableManagementSubsystem* ScannableManagementSubsystem = GetWorld()->GetSubsystem<UScannableManagementSubsystem>();
 
 					FRarityDataAssetPart RarityTier = ScannableManagementSubsystem->GetRarityTierOfScannable(Scannable);
 

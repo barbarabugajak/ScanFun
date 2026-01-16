@@ -28,7 +28,7 @@ void UScannableManagementSubsystem::Initialize(FSubsystemCollectionBase& Collect
 			}
 
 			if (UDataTable* LoadedDataTable = Cast<UDataTable>(LoadedAsset)) {
-				QRDataTable = LoadedDataTable;
+				ScannablesData = LoadedDataTable;
 			}
 			else {
 				UE_LOG(LogTemp, Error, TEXT("Loaded asset did not match type. Loaded from %s"), *Path.ToString());
@@ -140,7 +140,7 @@ void UScannableManagementSubsystem::SetConveyorBeltSetupRelatedVariables(AConvey
 
 void UScannableManagementSubsystem::SpawnScannable() {
 
-	if (QRDataTable == nullptr) {
+	if (ScannablesData == nullptr) {
 		return;
 	}
 	if (RarityDataAsset == nullptr) {
@@ -194,11 +194,11 @@ void UScannableManagementSubsystem::SpawnScannable() {
 
 	TArray< FScannableDataRow*> PossibleItems;
 
-	TArray<FName> RowNames = QRDataTable->GetRowNames();
+	TArray<FName> RowNames = ScannablesData->GetRowNames();
 
 	for (const FName& RowName : RowNames)
 	{
-		if (FScannableDataRow* Row = QRDataTable->FindRow<FScannableDataRow>(RowName, ""))
+		if (FScannableDataRow* Row = ScannablesData->FindRow<FScannableDataRow>(RowName, ""))
 		{
 			if (Row->Rarity == ChosenRarity.Name)
 			{
@@ -438,6 +438,13 @@ TArray<FQRCodeTypeEntry> UScannableManagementSubsystem::GetQRCodeTypesOfRarityTy
 		return Types;
 	}
 
+	if (!QRCodeTypeDataAsset->DefaultQRCode.IsNone()) {
+		Types.Add(GetQRCodeTypeFromName(QRCodeTypeDataAsset->DefaultQRCode));
+	}
+	else {
+		UE_LOG(LogTemp, Warning, TEXT("No Default QR Code Assigned"))
+	}
+
 	for (FName Name : RarityTier.QRCodeTypes) {
 		FQRCodeTypeEntry Entry = GetQRCodeTypeFromName(Name);
 		if (!Entry.Name.IsNone()) {
@@ -450,8 +457,15 @@ TArray<FQRCodeTypeEntry> UScannableManagementSubsystem::GetQRCodeTypesOfRarityTy
 
 FLinearColor UScannableManagementSubsystem::GetColorOfScanner(const FScannerType Scanner) {
 	FQRCodeTypeEntry QRCode = GetQRCodeTypeFromName(Scanner.AssignedQRCode);
-	if (QRCode.Name.IsNone()) {
-		UE_LOG(LogTemp, Error, TEXT("%s has no QR code assigned. Color set to default"), *Scanner.Name.ToString());
+	
+	if (!QRCodeTypeDataAsset) {
+		UE_LOG(LogTemp, Error, TEXT("QR Code Types Data Asset has not been loaded yet"));
 	}
+
+	if (QRCode.Name.IsNone()) {
+		UE_LOG(LogTemp, Warning, TEXT("%s has no QR code assigned. Color set to default"), *Scanner.Name.ToString());
+		return GetQRCodeTypeFromName(QRCodeTypeDataAsset->DefaultQRCode).Color; // Retrieving color of default QR, CDO's color should it fail
+	}
+	
 	return QRCode.Color;
 }

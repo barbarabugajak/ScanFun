@@ -27,4 +27,7 @@ class SCANFUN_API UQRCodeType : public UDataAsset
 public:
 	UPROPERTY(EditAnywhere, Category = "Entries", meta = (TitleProperty = "Name"))
 	TArray< FQRCodeTypeEntry> Entries;
+
+	UPROPERTY(EditAnywhere, Category = "Defaults", meta= (GetOptions = "ScannableManagementSubsystem.GetQRCodeTypes"))
+	FName DefaultQRCode;
 };

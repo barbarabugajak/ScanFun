@@ -45,7 +45,7 @@ public:
 	bool bWasInitialScannerBeamSetup = false;
 
 	UPROPERTY(EditAnywhere)
-	UDataTable* QRDataTable;
+	UDataTable* ScannablesData;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	URarityDataAsset* RarityDataAsset;
