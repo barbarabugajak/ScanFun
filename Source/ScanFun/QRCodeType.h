@@ -25,9 +25,9 @@ class SCANFUN_API UQRCodeType : public UDataAsset
 	GENERATED_BODY()
 
 public:
-	UPROPERTY(EditAnywhere, Category = "Entries", meta = (TitleProperty = "Name"))
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Entries", meta = (TitleProperty = "Name"))
 	TArray< FQRCodeTypeEntry> Entries;
 
-	UPROPERTY(EditAnywhere, Category = "Defaults", meta= (GetOptions = "ScannableManagementSubsystem.GetQRCodeTypes"))
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Defaults", meta= (GetOptions = "ScannableManagementSubsystem.GetQRCodeTypes"))
 	FName DefaultQRCode;
 };

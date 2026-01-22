@@ -131,7 +131,7 @@ void UScan::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGame
 							}
 
 							int randomNumber = FMath::RandRange(0, 100);
-							if (randomNumber >= Ability->ChanceOfActivation) {
+							if (randomNumber <= Ability->ChanceOfActivation) {
 								ASC->TryActivateAbility(AllMatchingSpecs[0]->Handle);
 							}
 						}

@@ -250,8 +250,6 @@ void UScannableManagementSubsystem::SpawnScannable() {
 			}
 		}
 	));
-
-	
 }
 
 void UScannableManagementSubsystem::UpdateScannables(float DeltaTime) {

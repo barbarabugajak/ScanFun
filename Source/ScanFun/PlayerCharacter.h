@@ -37,7 +37,7 @@ public:
 	virtual void PostInitializeComponents() override;
 
 	// Scanning
-	UPROPERTY(VisibleAnywhere)
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	class UStaticMeshComponent* ScannerConeComp;
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere);
@@ -77,4 +77,7 @@ public:
 
 	UFUNCTION(BlueprintImplementableEvent)
 	void ScanAbility_ActivationFailed();
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void ScanAbility_WidenBeam(float oldWidth, float newWidth);
 };

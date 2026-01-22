@@ -31,6 +31,7 @@ void APlayerCharacter::PostInitializeComponents() {
 	checkf(ASC != nullptr, TEXT("Ability System Component did not initialize properly"));
 	ASC->InitAbilityActorInfo(this, this);
 	IGameplayAbilitiesModule::Get().GetAbilitySystemGlobals()->GetAttributeSetInitter()->InitAttributeSetDefaults(ASC, "PlayerCharacter", /*Level=*/1, /*IsInitialLoad=*/true);
+
 }
 
 // Called when the game starts or when spawned
@@ -48,6 +49,13 @@ void APlayerCharacter::BeginPlay()
 		[this](const FOnAttributeChangeData& Data)
 		{
 			AttributeSet_ScoreChaned(Data.OldValue, Data.NewValue);
+		}
+	);
+
+	ASC->GetGameplayAttributeValueChangeDelegate(BasicDataAttributeSet->GetBeamWidthCoefficientAttribute()).AddLambda(
+		[this](const FOnAttributeChangeData& Data)
+		{
+			ScanAbility_WidenBeam(Data.OldValue, Data.NewValue);
 		}
 	);
 
@@ -108,9 +116,15 @@ void APlayerCharacter::SetupScannerBeamParams(FScannerType ScannerType) {
 	UScannableManagementSubsystem* ScannableSubSys = GetWorld()->GetSubsystem< UScannableManagementSubsystem>();
 	FLinearColor Color = ScannableSubSys->GetColorOfScanner(ScannerType);
 	DynMaterial->SetVectorParameterValue(TEXT("Color"), Color);
+	
+	float beamWidthCoefficient = 1.0f;
+	
+	if (ASC) {
+		beamWidthCoefficient = ASC->GetNumericAttribute(BasicDataAttributeSet->GetBeamWidthCoefficientAttribute());
+	}
 
 	ScannerConeComp->SetStaticMesh(ScannerType.ScannerMesh);
-	ScannerConeComp->SetRelativeScale3D(ScannerType.MeshScale);
+	ScannerConeComp->SetRelativeScale3D(ScannerType.MeshScale*beamWidthCoefficient);
 
 	FVector BoxExtent = ScannerConeComp->Bounds.BoxExtent;
 	FVector CurrentLocation = ScannerConeComp->GetComponentLocation();
