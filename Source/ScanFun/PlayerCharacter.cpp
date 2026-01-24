@@ -31,7 +31,7 @@ void APlayerCharacter::PostInitializeComponents() {
 	checkf(ASC != nullptr, TEXT("Ability System Component did not initialize properly"));
 	ASC->InitAbilityActorInfo(this, this);
 	IGameplayAbilitiesModule::Get().GetAbilitySystemGlobals()->GetAttributeSetInitter()->InitAttributeSetDefaults(ASC, "PlayerCharacter", /*Level=*/1, /*IsInitialLoad=*/true);
-
+	SetupTagListeners();
 }
 
 // Called when the game starts or when spawned
@@ -88,11 +88,15 @@ void APlayerCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	FVector RelativeScale = CurrentScanerType.MeshScale;
+	RelativeScale.Y *= currentBeamWidthCoefficient;
+	ScannerConeComp->SetRelativeScale3D(RelativeScale);
+
 }
 
 // Only works for Duration or Infinite effects, NOT instant
 void APlayerCharacter::OnActiveGameplayEffectAddedCallback(UAbilitySystemComponent* Target, const FGameplayEffectSpec& SpecApplied, FActiveGameplayEffectHandle ActiveHandle) {
-	
+
 }
 
 // Called to bind functionality to input
@@ -109,6 +113,24 @@ UAbilitySystemComponent* APlayerCharacter::GetAbilitySystemComponent() const
 
 }
 
+void APlayerCharacter::SetupTagListeners()
+{
+	if (!ASC) return;
+
+	ASC->RegisterGameplayTagEvent(BeamWidenTag, EGameplayTagEventType::NewOrRemoved).AddLambda(
+		[this](const FGameplayTag Tag, int32 NewCount) {
+			// Added
+			if (NewCount > 0) {
+				ScanAbility_WidenBeam(currentBeamWidthCoefficient, targetBeamWidthCoefficient);
+			}
+			// Removed
+			else {
+				ScanAbility_WidenBeam(currentBeamWidthCoefficient, 1.0f);
+			}
+		}
+	);
+}
+
 void APlayerCharacter::SetupScannerBeamParams(FScannerType ScannerType) {
 
 	DynMaterial = ScannerConeComp->CreateDynamicMaterialInstance(0);
@@ -116,15 +138,12 @@ void APlayerCharacter::SetupScannerBeamParams(FScannerType ScannerType) {
 	UScannableManagementSubsystem* ScannableSubSys = GetWorld()->GetSubsystem< UScannableManagementSubsystem>();
 	FLinearColor Color = ScannableSubSys->GetColorOfScanner(ScannerType);
 	DynMaterial->SetVectorParameterValue(TEXT("Color"), Color);
-	
-	float beamWidthCoefficient = 1.0f;
-	
-	if (ASC) {
-		beamWidthCoefficient = ASC->GetNumericAttribute(BasicDataAttributeSet->GetBeamWidthCoefficientAttribute());
-	}
 
 	ScannerConeComp->SetStaticMesh(ScannerType.ScannerMesh);
-	ScannerConeComp->SetRelativeScale3D(ScannerType.MeshScale*beamWidthCoefficient);
+
+	FVector RelativeScale = ScannerType.MeshScale;
+	RelativeScale.Y *= currentBeamWidthCoefficient;
+	ScannerConeComp->SetRelativeScale3D(RelativeScale);
 
 	FVector BoxExtent = ScannerConeComp->Bounds.BoxExtent;
 	FVector CurrentLocation = ScannerConeComp->GetComponentLocation();

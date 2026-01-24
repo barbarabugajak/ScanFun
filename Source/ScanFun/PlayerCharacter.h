@@ -61,6 +61,8 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Abilities")
 	TObjectPtr<UPlayerBasicAttributeSet> BasicDataAttributeSet;
 
+	void SetupTagListeners();
+
 	// Gameplay Abilities
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "GAS | GameplayAbilities ")
 	TArray<TSubclassOf<UGameplayAbilityBase>> GrantedAbilities;
@@ -80,4 +82,14 @@ public:
 
 	UFUNCTION(BlueprintImplementableEvent)
 	void ScanAbility_WidenBeam(float oldWidth, float newWidth);
+
+	// ScanAbility-related params
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Params")
+	float currentBeamWidthCoefficient = 1.0f;
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Params")
+	float targetBeamWidthCoefficient = 2.0f;
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Params | ScanAbilities | Tags")
+	FGameplayTag BeamWidenTag;
 };
