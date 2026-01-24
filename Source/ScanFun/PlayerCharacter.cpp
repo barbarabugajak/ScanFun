@@ -9,6 +9,7 @@
 #include "InputMappingContext.h"
 #include "EnhancedInputSubsystems.h"
 #include "ScannableManagementSubsystem.h"
+#include "ScannableSubsystemSettings.h"
 #include "Scan.h"
 #include "Kismet/GameplayStatics.h"
 
@@ -49,13 +50,6 @@ void APlayerCharacter::BeginPlay()
 		[this](const FOnAttributeChangeData& Data)
 		{
 			AttributeSet_ScoreChaned(Data.OldValue, Data.NewValue);
-		}
-	);
-
-	ASC->GetGameplayAttributeValueChangeDelegate(BasicDataAttributeSet->GetBeamWidthCoefficientAttribute()).AddLambda(
-		[this](const FOnAttributeChangeData& Data)
-		{
-			ScanAbility_WidenBeam(Data.OldValue, Data.NewValue);
 		}
 	);
 
@@ -126,6 +120,27 @@ void APlayerCharacter::SetupTagListeners()
 			// Removed
 			else {
 				ScanAbility_WidenBeam(currentBeamWidthCoefficient, 1.0f);
+			}
+		}
+	);
+
+	ASC->RegisterGameplayTagEvent(JitterConveyorTag, EGameplayTagEventType::NewOrRemoved).AddLambda(
+		[this](const FGameplayTag Tag, int32 NewCount) {
+
+			if (!GetWorld()) {
+				return;
+			}
+
+			UScannableManagementSubsystem* SubSys = GetWorld()->GetSubsystem<UScannableManagementSubsystem>();
+
+			// Added
+			if (NewCount > 0) {
+				SubSys->bIsJittering = true;
+			}
+			// Removed
+			else {
+				SubSys->bIsJittering = false;
+				SubSys->jitterCoefficient = 1.0f;
 			}
 		}
 	);

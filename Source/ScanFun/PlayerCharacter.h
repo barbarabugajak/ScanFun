@@ -92,4 +92,7 @@ public:
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Params | ScanAbilities | Tags")
 	FGameplayTag BeamWidenTag;
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Params | ScanAbilities | Tags")
+	FGameplayTag JitterConveyorTag;
 };

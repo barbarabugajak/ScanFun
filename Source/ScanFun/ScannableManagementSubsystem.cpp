@@ -96,6 +96,7 @@ void UScannableManagementSubsystem::Initialize(FSubsystemCollectionBase& Collect
 		}
 	));
 
+	CreateRandomSines();
 }
 
 TStatId UScannableManagementSubsystem::GetStatId() const
@@ -111,7 +112,9 @@ void UScannableManagementSubsystem::Tick(float DeltaTime) {
 	spawnDelayValueCounter += DeltaTime;
 
 	if (spawnDelayValueCounter >= spawnDelay) {
-		SpawnScannable();
+		if (!bIsJittering) {
+			SpawnScannable();
+		}
 		spawnDelayValueCounter = 0.f;
 	}
 
@@ -119,6 +122,10 @@ void UScannableManagementSubsystem::Tick(float DeltaTime) {
 \
 	if (!bWasInitialScannerBeamSetup) {
 		SetupInitialScannerBeam();
+	}
+
+	if (bIsJittering) {
+		JitterConveyorBelt();
 	}
 }
 
@@ -276,7 +283,8 @@ void UScannableManagementSubsystem::UpdateScannables(float DeltaTime) {
 			continue;
 		}
 
-		Location.Y -= objectSpeed * DeltaTime;
+		Location.Y -= objectSpeed * DeltaTime * jitterCoefficient;
+
 		Scannables[i]->SetActorLocation(Location);
 	}
 
@@ -356,6 +364,26 @@ void UScannableManagementSubsystem::TriggerLoseScore(int indexOfScannable) {
 		ASC->TriggerAbilityFromGameplayEvent(MatchingGameplayAbilities[j]->Handle, &GainScoreActorInfo, ScannableDestroyedEventTag, Data, *ASC);
 	}
 
+}
+
+void UScannableManagementSubsystem::CreateRandomSines()
+{
+	Sines.Reserve(4);
+	for (int i = 0; i < 4; i++) {
+		Sines.Add(FSineHelper::RandomInstance());
+	}
+}
+
+void UScannableManagementSubsystem::JitterConveyorBelt()
+{
+	double samplePosition = GetWorld()->TimeSeconds; 
+	
+	double val = 0;
+	for (FSineHelper Sine : Sines) {
+		val += Sine.CalcValueInPoint(samplePosition);
+	}
+
+	jitterCoefficient = val;
 }
 
 void UScannableManagementSubsystem::TryTriggeringRandomFailAbility(int indexOfScannable) {

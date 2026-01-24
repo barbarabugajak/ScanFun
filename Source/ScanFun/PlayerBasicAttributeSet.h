@@ -26,11 +26,6 @@ class SCANFUN_API UPlayerBasicAttributeSet : public UBaseAttributeSet
 		FGameplayAttributeData Score;
 
 		ATTRIBUTE_ACCESSORS(UPlayerBasicAttributeSet, Score);
-
-		UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-		FGameplayAttributeData BeamWidthCoefficient;
-
-		ATTRIBUTE_ACCESSORS(UPlayerBasicAttributeSet, BeamWidthCoefficient);
 		
 		virtual void PostAttributeChange(const FGameplayAttribute& Attribute, float OldValue, float NewValue) override;
 	

@@ -11,6 +11,7 @@
 #include "RarityDataAsset.h"
 #include "ScannableDataRow.h"
 #include "ScannerData.h"
+#include "SineHelper.h"
 #include "ScannableManagementSubsystem.generated.h"
 
 /**
@@ -128,6 +129,24 @@ public:
 
 	UPROPERTY()
 	UAbilitySystemComponent* ASC;
+
+	// Jittering
+	UPROPERTY()
+	float jitterCoefficient = 1.0f;
+
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere)
+	TArray<FSineHelper> Sines;
+
+	UPROPERTY()
+	bool bIsJittering = false;
+
+	UFUNCTION()
+	void CreateRandomSines();
+
+	UFUNCTION()
+	void JitterConveyorBelt();
+
+
 private:
 	UPROPERTY()
 	float spawnDelayValueCounter = 0.f;
