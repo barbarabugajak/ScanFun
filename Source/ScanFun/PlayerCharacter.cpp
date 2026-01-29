@@ -53,6 +53,20 @@ void APlayerCharacter::BeginPlay()
 		}
 	);
 
+	ASC->GetGameplayAttributeValueChangeDelegate(BasicDataAttributeSet->GetWorldColorSaturationAttribute()).AddLambda(
+		[this](const FOnAttributeChangeData& Data)
+		{
+			if (!GetWorld()) return; // No world initialized yet
+
+			APostProcessVolume* PostProcess = Cast<APostProcessVolume>(
+				UGameplayStatics::GetActorOfClass(GetWorld(), APostProcessVolume::StaticClass()));
+
+			if (IsValid(PostProcess)) {
+				PostProcess->Settings.ColorSaturation = FVector4(1, 1, 1, Data.NewValue);
+			}
+		}
+	);
+
 	ASC->AbilityFailedCallbacks.AddLambda(
 		[this](const UGameplayAbility* Ability, const FGameplayTagContainer& FailureTags)
 		{

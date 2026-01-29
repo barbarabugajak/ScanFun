@@ -27,6 +27,11 @@ class SCANFUN_API UPlayerBasicAttributeSet : public UBaseAttributeSet
 
 		ATTRIBUTE_ACCESSORS(UPlayerBasicAttributeSet, Score);
 		
+		UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+		FGameplayAttributeData WorldColorSaturation;
+
+		ATTRIBUTE_ACCESSORS(UPlayerBasicAttributeSet, WorldColorSaturation);
+
 		virtual void PostAttributeChange(const FGameplayAttribute& Attribute, float OldValue, float NewValue) override;
 	
 };
