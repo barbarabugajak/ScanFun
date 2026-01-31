@@ -104,7 +104,39 @@ void APlayerCharacter::Tick(float DeltaTime)
 
 // Only works for Duration or Infinite effects, NOT instant
 void APlayerCharacter::OnActiveGameplayEffectAddedCallback(UAbilitySystemComponent* Target, const FGameplayEffectSpec& SpecApplied, FActiveGameplayEffectHandle ActiveHandle) {
+	
+	if (!SpecApplied.Def) return;
+	
+	if (SpecApplied.Def.GetClass() == GE_Cooldown_Class) {
+		
+		UWorld* World = GetWorld();
 
+		if (!World) {
+			return;
+		}	
+		UScannableManagementSubsystem* ScannableSubSys = World->GetSubsystem< UScannableManagementSubsystem>();
+		if (!ScannableSubSys) {
+			return;
+		}
+
+		// Associate the Active GameplayEffect with Scanner Type
+		ScannableSubSys->ScannerCooldowns.FindOrAdd(CurrentScanerType.Name) = ActiveHandle;
+
+		// Add removed delegate 
+		ASC->OnGameplayEffectRemoved_InfoDelegate(ActiveHandle)->AddLambda(
+			[this](const FGameplayEffectRemovalInfo& GameplayEffectRemovalInfo)
+			{
+				UScannableManagementSubsystem* ScannableSubSys = GetWorld()->GetSubsystem< UScannableManagementSubsystem>();
+				if (!ScannableSubSys) return;
+
+				// As it is the Scanner Type that is the key, it needs to be found first. O(n) is acceptable here
+				if (const FName* Key = ScannableSubSys->ScannerCooldowns.FindKey(GameplayEffectRemovalInfo.ActiveEffect->Handle))
+				{
+					ScannableSubSys->ScannerCooldowns.FindAndRemoveChecked(*Key);
+				}
+			}
+		);
+	}
 }
 
 // Called to bind functionality to input

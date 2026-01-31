@@ -95,4 +95,7 @@ public:
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Params | ScanAbilities | Tags")
 	FGameplayTag JitterConveyorTag;
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Params | Cooldowns")
+	TSubclassOf<UGameplayEffect> GE_Cooldown_Class;
 };

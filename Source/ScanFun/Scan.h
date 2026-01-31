@@ -34,4 +34,6 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Properties | GameplayTags")
 	FGameplayTag CooldownMagnitudeTag;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Properties | Classes ")
+	TSubclassOf<UGameplayEffect> ScannerCooldownGE_Class;
 };

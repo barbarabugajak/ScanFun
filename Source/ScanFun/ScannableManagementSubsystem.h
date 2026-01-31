@@ -59,6 +59,9 @@ public:
 
 	UPROPERTY(EditAnywhere)
 	TSubclassOf<AScannable> ScannableToSpawn_Class;
+	// Scanners
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TMap<FName, FActiveGameplayEffectHandle> ScannerCooldowns;
 
 	// QR 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "QR Scale")

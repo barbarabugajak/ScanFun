@@ -156,10 +156,9 @@ void UScan::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGame
 	Character->ScanAbility_Activated(bWasScanSuccesful);
 
 	// Cooldown
-	UGameplayEffect* CooldownGE = GetCooldownGameplayEffect();
-	if (CooldownGE)
+	if (ScannerCooldownGE_Class)
 	{
-		FGameplayEffectSpecHandle Spec = ASC->MakeOutgoingSpec(CooldownGE->GetClass(), 1, Context);
+		FGameplayEffectSpecHandle Spec = ASC->MakeOutgoingSpec(ScannerCooldownGE_Class, 1, Context);
 		Spec.Data->SetSetByCallerMagnitude(CooldownMagnitudeTag, Character->CurrentScanerType.Cooldown);
 		ASC->ApplyGameplayEffectSpecToSelf(*Spec.Data.Get());
 	}
@@ -173,6 +172,20 @@ bool UScan::CanActivateAbility(const FGameplayAbilitySpecHandle Handle, const FG
 	{
 		return false;
 	}
+
+	check(ActorInfo != nullptr);
+	APlayerCharacter* Character = CastChecked<APlayerCharacter>(ActorInfo->AvatarActor.Get());
+	check(IsValid(Character));
+	FScannerType Scanner = Character->CurrentScanerType;
+
+	UWorld* World = GetWorld();
+	check(World);
+
+	UScannableManagementSubsystem* ScannableSubSys = GetWorld()->GetSubsystem< UScannableManagementSubsystem>();
+	if (ScannableSubSys->ScannerCooldowns.Contains(Scanner.Name)) {
+		return false;
+	}
+
 	return true;
 }
 
