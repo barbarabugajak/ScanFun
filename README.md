@@ -14,6 +14,11 @@ What will it be this time... will the conveyor belt start glitching… or will t
 
 <img width="1715" height="1445" alt="Curve Table" src="https://github.com/user-attachments/assets/fea42c96-f07c-4944-8380-a14d36e2bdca" />
 
+## Gameplay
+
+https://github.com/user-attachments/assets/744b9c92-6aa2-49c3-95f1-e39a6d43a135
+
+
 ## 📦 Assets Used
 
 Below is a list of assets used in this project, together with their licenses and original sources.  
